@@ -8,4 +8,4 @@ This discord bot will help you find the sauces from the screenshots that you fin
 
 ![](https://i.imgur.com/kaPvc8S.gif)
 
-Invite this bot to  your server [here](https://discord.com/api/oauth2/authorize?client_id=798894524428189697&permissions=523328&scope=bot){:target="_blank"}.
+Invite this bot to  your server [here](https://discord.com/api/oauth2/authorize?client_id=798894524428189697&permissions=523328&scope=bot)
