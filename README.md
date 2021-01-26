@@ -1,4 +1,4 @@
-## Discord Bot Sauce Finder
+# Discord Bot Sauce Finder
 
 For those of you who find screenshots of manga but you don't know the sauce.
 
