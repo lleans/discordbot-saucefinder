@@ -27,12 +27,14 @@ class MaidOurdick(discord.Client):
             desc = "Likely **" + str(sauce[0].similarity) + f"%**\n\nAnother Results \n"
         for another in sauce:
             data = another.title
-            desc += f"**{data}**\n"
-        footer = "If the search result is below 50% then do a manual search"
+            desc += f"**  • {data}**\n"
         e = discord.Embed(title=sauce[0].title, description=desc, color=discord.Color.random())
         e.set_image(url=sauce[0].thumbnail)
-        e.url = sauce[0].urls[0]
-        e.set_footer(text=footer)
+        try:
+            e.url = sauce[0].urls[0]
+        except IndexError:
+            pass
+        e.set_footer(text="If the search result is below 50% then do a manual search")
         return e
 
     async def on_message(self, message):
