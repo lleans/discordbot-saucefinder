@@ -57,15 +57,15 @@ class MaidOurdick(discord.Client):
                     f"%**\n\nAnother Results: \n"
         for another in islice(sauce.another, 0, 5):
             try:
-                desc += f"** • [{another.title[:150 - len(another.title)]}...]({another.url})**\n"
+                desc += f"** • [{another.title[:240 - len(another.title)]}...]({another.url})**\n"
             except:
                 pass
             try:
-                desc += f"** • [{another.title[:150 - len(another.title)]}...]({another.thumbnail})**\n"
+                desc += f"** • [{another.title[:240 - len(another.title)]}...]({another.thumbnail})**\n"
             except:
                 pass
             try:
-                desc += f"** • [{another.titles[:150 - len(another.titles)]}...]({another.urls})**\n"
+                desc += f"** • [{another.titles[:240 - len(another.titles)]}...]({another.urls})**\n"
             except:
                 pass
         
