@@ -1,14 +1,25 @@
 aiohttp==3.7.3
 async-timeout==3.0.1
 attrs==20.3.0
+autopep8==1.5.5
+beautifulsoup4==4.9.3
 certifi==2020.12.5
 chardet==3.0.4
+colorama==0.4.4
+colorthief==0.2.1
 discord.py==1.6.0
 idna==2.10
-Kadal==0.2.3
+Kadal==0.2.4
+loguru==0.5.3
 multidict==5.1.0
+-e git+https://github.com/lleans/PicImageSearch.git@1e5520161077e935119e21c523c8a5ff6f8af658#egg=PicImageSearch
+Pillow==8.1.0
+pycodestyle==2.6.0
 requests==2.23.0
-saucenao-api==2.3.0
+requests-toolbelt==0.9.1
+soupsieve==2.2
+toml==0.10.2
 typing-extensions==3.7.4.3
 urllib3==1.25.11
+win32-setctime==1.0.3
 yarl==1.6.3
