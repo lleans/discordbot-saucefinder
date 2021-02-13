@@ -1,11 +1,5 @@
 import re
 from PicImageSearch import SauceNAO, TraceMoe, Ascii2D, Iqdb
-import logging
-from loguru import logger
-
-logger = logging.getLogger('my-logger')
-logger.propagate = False
-
 
 class Sauce:
     title = ""
