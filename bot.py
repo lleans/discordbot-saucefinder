@@ -97,6 +97,7 @@ class MaidOurdick(discord.Client):
                 sauce = saucer.sauce(m_clean[0], type="anime")
                 embed = await self.format_embed(sauce, type="anime")
                 await temp.delete()
+                await message.channel.send(m_clean[0])
                 await message.channel.send(embed=embed)
                 await message.channel.send(sauce.url)
             else:
@@ -105,6 +106,7 @@ class MaidOurdick(discord.Client):
                 sauce = saucer.sauce(m_clean[0], type="image")
                 embed = await self.format_embed(sauce, type="manga")
                 await temp.delete()
+                await message.channel.send(m_clean[0])
                 await message.channel.send(embed=embed)
 
     async def wait_please(self):
