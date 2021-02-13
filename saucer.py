@@ -30,7 +30,7 @@ def sauce_anime(name):
     setattr(Sauce, 'similiar', tMoesimilar)
     setattr(Sauce, 'thumbnail', tMoe.thumbnail)
     setattr(Sauce, 'url', tMoe.video_thumbnail)
-    setattr(Sauce, 'frm', "Trace Moe")
+    setattr(Sauce, 'frm', "TraceMoe")
     setattr(Sauce, 'another', saucer_TraceMoe(name).raw)
 
 
@@ -58,14 +58,14 @@ def sauce_image(name):
     sNaosimilar = float(sNao.similarity)
 
     if sNaosimilar <= 50 and Iqsimilar <= 50 and Iq3dsimilar <= 50:
-        setattr(Sauce, 'title', A2d.titles[0][:240 - len(A2d.titles)] + "...")
+        setattr(Sauce, 'title', A2d.titles[0])
         setattr(Sauce, 'similiar', None)
         setattr(Sauce, 'thumbnail', A2d.thumbnail[0])
         setattr(Sauce, 'url', A2d.urls[0])
         setattr(Sauce, 'frm', "Ascii2d")
         setattr(Sauce, 'another', saucer_Ascii2D(name).raw)
     elif sNaosimilar >= Iqsimilar and sNaosimilar >= Iq3dsimilar:
-        setattr(Sauce, 'title', sNao.title[:240 - len(sNao.title)] + "...")
+        setattr(Sauce, 'title', sNao.title)
         setattr(Sauce, 'similiar', sNaosimilar)
         setattr(Sauce, 'thumbnail', sNao.thumbnail)
         setattr(Sauce, 'url', sNao.url)
