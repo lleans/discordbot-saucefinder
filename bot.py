@@ -58,15 +58,15 @@ class MaidOurdick(discord.Client):
                     f"%**\n\nAnother Results: \n"
         for another in islice(sauce.another, 0, 5):
             try:
-                desc += f"** • [{another.title[:240 - len(another.title)]} ...]({another.url})**\n"
+                desc += f"** • [{another.title[:256 - len(another.title)]} ...]({another.url})**\n"
             except:
                 pass
             try:
-                desc += f"** • [{another.title[:240 - len(another.title)]} ...]({another.thumbnail})**\n"
+                desc += f"** • [{another.title[:256 - len(another.title)]} ...]({another.thumbnail})**\n"
             except:
                 pass
             try:
-                desc += f"** • [{another.titles[0][:240 - len(another.titles)]} ...]({another.urls[0]})**\n"
+                desc += f"** • [{another.titles[0][:256 - len(another.titles)]} ...]({another.urls[0]})**\n"
             except:
                 pass
         req = Request(sauce.thumbnail, headers={'User-Agent': 'Mozilla/5.0'})
@@ -78,10 +78,10 @@ class MaidOurdick(discord.Client):
         e.set_image(url=sauce.thumbnail)
         try:
             e.url = sauce.url
-        except IndexError:
-            pass
+        except:
+            e.url = f"https:{sauce.url}"
         e.set_footer(icon_url=message.author.avatar_url,
-                     text=f"Source from {sauce.frm}")
+                     text=f"Requesed by {message.author.name} | {sauce.frm}")
         return e
 
     async def on_message(self, message):

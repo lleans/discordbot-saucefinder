@@ -72,17 +72,17 @@ def sauce_image(name):
         setattr(Sauce, 'frm', "SauceNao")
         setattr(Sauce, 'another', saucer_sauceNao(name).raw)
     elif Iqsimilar >= sNaosimilar and Iqsimilar >= Iq3dsimilar:
-        setattr(Sauce, 'title', Iq.title[:240 - len(Iq.title)] + "...")
+        setattr(Sauce, 'title', Iq.title[:256 - len(Iq.title)] + "...")
         setattr(Sauce, 'similiar', Iqsimilar)
         setattr(Sauce, 'thumbnail', Iq.thumbnail)
-        setattr(Sauce, 'url', f"https:{Iq.url}")
+        setattr(Sauce, 'url', Iq.url)
         setattr(Sauce, 'frm', "Iqdb")
         setattr(Sauce, 'another', saucer_Iqdb(name).raw)
     elif Iq3dsimilar >= sNaosimilar and Iq3dsimilar >= Iqsimilar:
-        setattr(Sauce, 'title', Iq3d.title[:240 - len(Iq3d.title)] + "...")
+        setattr(Sauce, 'title', Iq3d.title[:256 - len(Iq3d.title)] + "...")
         setattr(Sauce, 'similiar', Iq3dsimilar)
         setattr(Sauce, 'thumbnail', Iq3d.thumbnail)
-        setattr(Sauce, 'url', f"https:{Iq3d.url}")
+        setattr(Sauce, 'url', Iq3d.url)
         setattr(Sauce, 'frm', "Iqdb 3D")
         setattr(Sauce, 'another', saucer_Iqdb3d(name).raw)
     
