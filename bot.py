@@ -81,7 +81,7 @@ class MaidOurdick(discord.Client):
         except:
             e.url = f"https:{sauce.url}"
         e.set_footer(icon_url=message.author.avatar_url,
-                     text=f"Requesed by {message.author.name} | {sauce.frm}")
+                     text=f"Requested by {message.author.name} | {sauce.frm}")
         return e
 
     async def on_message(self, message):
