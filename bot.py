@@ -15,7 +15,7 @@ class MaidOurdick(discord.Client):
     def __init__(self):
         super().__init__()
         self.regex_sauce_image = re.compile(r'"(.*?)"')
-        self.regex_sauce_video = re.compile(r"mp4")
+        self.regex_sauce_video = re.compile(r"mp4|'(.*?)'")
         self.klient = kadal.Klient()
         print("start")
 
