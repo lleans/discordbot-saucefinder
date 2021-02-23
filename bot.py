@@ -15,7 +15,7 @@ class MaidOurdick(discord.Client):
     def __init__(self):
         super().__init__()
         self.regex_sauce_image = re.compile(r'"(.*?)"')
-        self.regex_sauce_video = re.compile(r"mp4|'(.*?)'")
+        self.regex_sauce_video = re.compile(r'(.*mp4)|<(.*?)>')
         self.klient = kadal.Klient()
         print("start")
 
@@ -36,9 +36,9 @@ class MaidOurdick(discord.Client):
                         "<i>", "").replace("</i>", "")
                 else:
                     desc += "\nAnother Results \n"
-            except kadal.MediaNotFound:
+            except:
                 desc = "Likely **" + str(sauce.similiar) + \
-                    f"%**\n\nAnother Results \n"
+                    f" %**\n\nAnother Results \n"
 
         if type == "anime":
             try:
@@ -53,9 +53,9 @@ class MaidOurdick(discord.Client):
                         "<i>", "").replace("</i>", "")
                 else:
                     desc += "\nAnother Results: \n"
-            except kadal.MediaNotFound:
+            except:
                 desc = "Likely **" + str(sauce.similiar) + \
-                    f"%**\n\nAnother Results: \n"
+                    f" %**\n\nAnother Results: \n"
         for another in islice(sauce.another, 0, 5):
             try:
                 desc += f"** • [{another.title[:256 - len(another.title)]} ...]({another.url})**\n"

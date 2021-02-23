@@ -1,5 +1,5 @@
 import re
-from PicImageSearch import SauceNAO, TraceMoe, Ascii2D, Iqdb
+from PicImageSearch import SauceNAO, TraceMoe, Ascii2D, Iqdb, Google
 
 class Sauce:
     title = ""
@@ -55,30 +55,42 @@ def sauce_image(name):
     except AttributeError:
         Iq3dsimilar = float(0)
 
+    try:
+        Google = saucer_Google(name).raw[2]
+    except:
+        Google = None
+
     sNaosimilar = float(sNao.similarity)
 
-    if sNaosimilar <= 50 and Iqsimilar <= 50 and Iq3dsimilar <= 50:
+    if sNaosimilar <= 50 and Iqsimilar <= 50 and Iq3dsimilar <= 50 and Google is not None:
+        setattr(Sauce, 'title', Google.title[0])
+        setattr(Sauce, 'similiar', None)
+        setattr(Sauce, 'thumbnail', Google.thumbnail[0])
+        setattr(Sauce, 'url', Google.url[0])
+        setattr(Sauce, 'frm', "Google")
+        setattr(Sauce, 'another', saucer_Google(name).raw)
+    elif sNaosimilar <= 50 and Iqsimilar <= 50 and Iq3dsimilar <= 50 and Google is None:
         setattr(Sauce, 'title', A2d.titles[0])
         setattr(Sauce, 'similiar', None)
         setattr(Sauce, 'thumbnail', A2d.thumbnail[0])
         setattr(Sauce, 'url', A2d.urls[0])
         setattr(Sauce, 'frm', "Ascii2d")
         setattr(Sauce, 'another', saucer_Ascii2D(name).raw)
-    elif sNaosimilar >= Iqsimilar and sNaosimilar >= Iq3dsimilar:
+    elif sNaosimilar >= Iqsimilar and sNaosimilar >= Iq3dsimilar and Google is None:
         setattr(Sauce, 'title', sNao.title)
         setattr(Sauce, 'similiar', sNaosimilar)
         setattr(Sauce, 'thumbnail', sNao.thumbnail)
         setattr(Sauce, 'url', sNao.url)
         setattr(Sauce, 'frm', "SauceNao")
         setattr(Sauce, 'another', saucer_sauceNao(name).raw)
-    elif Iqsimilar >= sNaosimilar and Iqsimilar >= Iq3dsimilar:
+    elif Iqsimilar >= sNaosimilar and Iqsimilar >= Iq3dsimilar and Google is None:
         setattr(Sauce, 'title', Iq.title[:256 - len(Iq.title)] + "...")
         setattr(Sauce, 'similiar', Iqsimilar)
         setattr(Sauce, 'thumbnail', Iq.thumbnail)
         setattr(Sauce, 'url', Iq.url)
         setattr(Sauce, 'frm', "Iqdb")
         setattr(Sauce, 'another', saucer_Iqdb(name).raw)
-    elif Iq3dsimilar >= sNaosimilar and Iq3dsimilar >= Iqsimilar:
+    elif Iq3dsimilar >= sNaosimilar and Iq3dsimilar >= Iqsimilar and Google is None:
         setattr(Sauce, 'title', Iq3d.title[:256 - len(Iq3d.title)] + "...")
         setattr(Sauce, 'similiar', Iq3dsimilar)
         setattr(Sauce, 'thumbnail', Iq3d.thumbnail)
@@ -116,4 +128,10 @@ def saucer_Iqdb(name):
 def saucer_Iqdb3d(name):
     saucer = Iqdb()
     sauce = saucer.search_3d(name)
+    return sauce
+
+
+def saucer_Google(name):
+    saucer = Google()
+    sauce = saucer.search(name)
     return sauce
