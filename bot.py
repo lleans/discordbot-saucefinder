@@ -69,13 +69,17 @@ class MaidOurdick(discord.Client):
                 desc += f"** • [{another.titles[0][:256 - len(another.titles)]} ...]({another.urls[0]})**\n"
             except:
                 pass
-        req = Request(sauce.thumbnail, headers={'User-Agent': 'Mozilla/5.0'})
-        fd = urlopen(req)
-        f = io.BytesIO(fd.read())
-        color_thief = ColorThief(f)
-        e = discord.Embed(title=sauce.title, description=desc,
-                          color=discord.Color.from_rgb(color_thief.get_color(quality=1)[0], color_thief.get_color(quality=1)[1], color_thief.get_color(quality=1)[2]))
-        e.set_image(url=sauce.thumbnail)
+        try:
+            req = Request(sauce.thumbnail, headers={'User-Agent': 'Mozilla/5.0'})
+            fd = urlopen(req)
+            f = io.BytesIO(fd.read())
+            color_thief = ColorThief(f)
+            e = discord.Embed(title=sauce.title, description=desc,
+                            color=discord.Color.from_rgb(color_thief.get_color(quality=1)[0], color_thief.get_color(quality=1)[1], color_thief.get_color(quality=1)[2]))
+            e.set_image(url=sauce.thumbnail)
+        except:
+            e = discord.Embed(title=sauce.title, description=desc,
+                            color=discord.Color.from_rgb(255, 201, 107))
         try:
             e.url = sauce.url
         except:
