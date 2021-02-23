@@ -12,7 +12,7 @@ idna==2.10
 Kadal==0.2.4
 loguru==0.5.3
 multidict==5.1.0
--e git+https://github.com/lleans/PicImageSearch.git@1e5520161077e935119e21c523c8a5ff6f8af658#egg=PicImageSearch
+PicImageSearch @ git+https://github.com/lleans/PicImageSearch@ce2502b30b8672ed7102a4d33fd238baaf7f0815
 Pillow==8.1.0
 pycodestyle==2.6.0
 requests==2.23.0
