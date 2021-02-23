@@ -63,10 +63,10 @@ def sauce_image(name):
     sNaosimilar = float(sNao.similarity)
 
     if sNaosimilar <= 50 and Iqsimilar <= 50 and Iq3dsimilar <= 50 and Google is not None:
-        setattr(Sauce, 'title', Google.title[0])
+        setattr(Sauce, 'title', Google.titles[0])
         setattr(Sauce, 'similiar', None)
         setattr(Sauce, 'thumbnail', Google.thumbnail[0])
-        setattr(Sauce, 'url', Google.url[0])
+        setattr(Sauce, 'url', Google.urls[0])
         setattr(Sauce, 'frm', "Google")
         setattr(Sauce, 'another', saucer_Google(name).raw)
     elif sNaosimilar <= 50 and Iqsimilar <= 50 and Iq3dsimilar <= 50 and Google is None:
