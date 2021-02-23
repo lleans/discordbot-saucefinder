@@ -65,7 +65,10 @@ def sauce_image(name):
     if sNaosimilar <= 50 and Iqsimilar <= 50 and Iq3dsimilar <= 50 and Google is not None:
         setattr(Sauce, 'title', Google.titles[0])
         setattr(Sauce, 'similiar', None)
-        setattr(Sauce, 'thumbnail', Google.thumbnail[0])
+        try:
+            setattr(Sauce, 'thumbnail', Google.thumbnail[0])
+        except:
+            setattr(Sauce, 'thumbnail', None)
         setattr(Sauce, 'url', Google.urls[0])
         setattr(Sauce, 'frm', "Google")
         setattr(Sauce, 'another', saucer_Google(name).raw)
