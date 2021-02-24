@@ -1,140 +1,178 @@
 import re
 from PicImageSearch import SauceNAO, TraceMoe, Ascii2D, Iqdb, Google
 
+
 class Sauce:
-    title = ""
-    similiar = ""
-    thumbnail = ""
-    url = ""
-    frm = ""
-    another = ""
 
+    def __init__(self, name, type):
+        self.title = ""
+        self.similiar = ""
+        self.thumbnail = ""
+        self.url = ""
+        self.source = ""
+        self.another_titles: list = list()
+        self.another_urls: list = list()
+        self._getsauce(name=name, type=type)
 
-def sauce(name, type):
-    if type == "anime":
-        sauce_anime(name)
+    def _getsauce(self, name, type):
+        if type == "anime":
+            self.sauce_anime(name)
 
-    if type == "image":
-        sauce_image(name)
+        if type == "image":
+            self.sauce_image(name)
 
-    sauce = Sauce()
+    def sauce_anime(self, name):
+        tMoe = Saucer.saucer_TraceMoe(name).raw
+        tMoesimilar = float("{:.2f}".format(tMoe[0].similarity * 100))
 
-    return sauce
+        self.title = tMoe[0].title_english
+        self.similiar = tMoesimilar
+        self.thumbnail = tMoe[0].thumbnail
+        self.url = tMoe[0].video_thumbnail
+        self.source = "TraceMoe"
+        for x in tMoe:
+            self.another_titles.append(x.title)
+            self.another_urls.append(x.video_thumbnail)
 
+    def sauce_image(self, name):
+        Google = Saucer.saucer_Google(name).raw
+        sNao = Saucer.saucer_sauceNao(name).raw
+        A2d = Saucer.saucer_Ascii2D(name).raw
 
-def sauce_anime(name):
-    tMoe = saucer_TraceMoe(name).raw[0]
-    tMoesimilar = float("{:.2f}".format(tMoe.similarity * 100))
-
-    setattr(Sauce, 'title', tMoe.title_english)
-    setattr(Sauce, 'similiar', tMoesimilar)
-    setattr(Sauce, 'thumbnail', tMoe.thumbnail)
-    setattr(Sauce, 'url', tMoe.video_thumbnail)
-    setattr(Sauce, 'frm', "TraceMoe")
-    setattr(Sauce, 'another', saucer_TraceMoe(name).raw)
-
-
-def sauce_image(name):
-    sNao = saucer_sauceNao(name).raw[0]
-    A2d = saucer_Ascii2D(name).raw[1]
-    try:
-        Iq = saucer_Iqdb(name).raw[0]
-        regexIq = re.compile("[0-9]+")
-        Iqs = regexIq.findall(Iq.similarity)
-        Iqsi_clean = list(filter(bool, Iqs))
-        Iqsimilar = float(Iqsi_clean[0])
-    except AttributeError:
-        Iqsimilar = float(0)
-
-    try:
-        Iq3d = saucer_Iqdb3d(name).raw[0]
-        regexIqs = re.compile("[0-9]+")
-        Iq3D = regexIqs.findall(Iq.similarity)
-        Iqs3D_clean = list(filter(bool, Iq3D))
-        Iq3dsimilar = float(Iqs3D_clean[0])
-    except AttributeError:
-        Iq3dsimilar = float(0)
-
-    try:
-        Google = saucer_Google(name).raw[2]
-    except:
-        Google = None
-
-    sNaosimilar = float(sNao.similarity)
-
-    if sNaosimilar <= 50 and Iqsimilar <= 50 and Iq3dsimilar <= 50 and Google is not None:
-        setattr(Sauce, 'title', Google.titles[0])
-        setattr(Sauce, 'similiar', None)
         try:
-            setattr(Sauce, 'thumbnail', Google.thumbnail[0])
+            Iq = Saucer.saucer_Iqdb(name).raw
+            regexIq = re.compile("[0-9]+")
+            Iqs = regexIq.search(Iq[0].similarity)
+            Iqsimilar = float(Iqs.group(0))
+        except AttributeError:
+            Iqsimilar = float(0)
+
+        try:
+            Iq3d = Saucer.saucer_Iqdb3d(name).raw
+            regexIqs = re.compile("[0-9]+")
+            Iq3D = regexIqs.search(Iq3d[0].similarity)
+            Iq3dsimilar = float(Iq3D.group(0))
+        except AttributeError:
+            Iq3dsimilar = float(0)
+
+        try:
+            Googledata = Google[2].titles[0]
         except:
-            setattr(Sauce, 'thumbnail', None)
-        setattr(Sauce, 'url', Google.urls[0])
-        setattr(Sauce, 'frm', "Google")
-        setattr(Sauce, 'another', saucer_Google(name).raw)
-    elif sNaosimilar <= 50 and Iqsimilar <= 50 and Iq3dsimilar <= 50 and Google is None:
-        setattr(Sauce, 'title', A2d.titles[0])
-        setattr(Sauce, 'similiar', None)
-        setattr(Sauce, 'thumbnail', A2d.thumbnail[0])
-        setattr(Sauce, 'url', A2d.urls[0])
-        setattr(Sauce, 'frm', "Ascii2d")
-        setattr(Sauce, 'another', saucer_Ascii2D(name).raw)
-    elif sNaosimilar >= Iqsimilar and sNaosimilar >= Iq3dsimilar and Google is None:
-        setattr(Sauce, 'title', sNao.title)
-        setattr(Sauce, 'similiar', sNaosimilar)
-        setattr(Sauce, 'thumbnail', sNao.thumbnail)
-        setattr(Sauce, 'url', sNao.url)
-        setattr(Sauce, 'frm', "SauceNao")
-        setattr(Sauce, 'another', saucer_sauceNao(name).raw)
-    elif Iqsimilar >= sNaosimilar and Iqsimilar >= Iq3dsimilar and Google is None:
-        setattr(Sauce, 'title', Iq.title[:256 - len(Iq.title)] + "...")
-        setattr(Sauce, 'similiar', Iqsimilar)
-        setattr(Sauce, 'thumbnail', Iq.thumbnail)
-        setattr(Sauce, 'url', Iq.url)
-        setattr(Sauce, 'frm', "Iqdb")
-        setattr(Sauce, 'another', saucer_Iqdb(name).raw)
-    elif Iq3dsimilar >= sNaosimilar and Iq3dsimilar >= Iqsimilar and Google is None:
-        setattr(Sauce, 'title', Iq3d.title[:256 - len(Iq3d.title)] + "...")
-        setattr(Sauce, 'similiar', Iq3dsimilar)
-        setattr(Sauce, 'thumbnail', Iq3d.thumbnail)
-        setattr(Sauce, 'url', Iq3d.url)
-        setattr(Sauce, 'frm', "Iqdb 3D")
-        setattr(Sauce, 'another', saucer_Iqdb3d(name).raw)
-    
+            Googledata = None
+
+        sNaosimilar = float(sNao[0].similarity)
+
+        if sNaosimilar <= 50 and Iqsimilar <= 50 and Iq3dsimilar <= 50 and Googledata is not None:
+            # Google
+            self.title = Google[2].titles[0]
+            self.similiar = None
+            try:
+                self.thumbnail = Google[2].thumbnail[0]
+            except:
+                self.thumbnail = None
+            self.url = Google[2].urls[0]
+            self.source = "Google"
+            for x in Google:
+                try:
+                    self.another_titles.append(x.titles[0])
+                    self.another_urls.append(x.urls[0])
+                except:
+                    continue
+        elif sNaosimilar <= 50 and Iqsimilar <= 50 and Iq3dsimilar <= 50 and Googledata is None:
+            # Ascii2d
+            self.title = A2d[1].titles[0]
+            self.similiar = None
+            self.thumbnail = A2d[1].thumbnail[0]
+            self.url = A2d[1].urls[0]
+            self.source = "Ascii2D"
+            for x in A2d:
+                try:
+                    self.another_titles.append(x.titles[0])
+                    self.another_urls.append(x.urls[0])
+                except:
+                    continue
+        elif sNaosimilar >= Iqsimilar and sNaosimilar >= Iq3dsimilar:
+            # SauceNao
+            self.title = sNao[0].title
+            self.similiar = sNaosimilar
+            self.thumbnail = sNao[0].thumbnail
+            self.url = sNao[0].url
+            self.source = "SauceNao"
+            for x in sNao:
+                try:
+                    self.another_titles.append(x.title)
+                    self.another_urls.append(x.url)
+                except:
+                    continue
+        elif Iqsimilar >= sNaosimilar and Iqsimilar >= Iq3dsimilar:
+            # Iqdb
+            self.title = Iq[0].title[:250 - len(Iq[0].title)] + "..."
+            self.similiar = Iqsimilar
+            self.thumbnail = Iq[0].thumbnail
+            if Iq[0].url[:4] == 'http':
+                self.url = Iq[0].url
+            else:
+                self.url = f"https:{Iq[0].url}"
+            self.source = "Iqdb"
+            for x in Iq:
+                try:
+                    self.another_titles.append(x.title)
+                    if x.url[:4] == 'http':
+                        self.another_urls.append(x.url)
+                    else:
+                        self.another_urls.append(f"https:{x.url}")
+                except:
+                    continue
+        elif Iq3dsimilar >= sNaosimilar and Iq3dsimilar >= Iqsimilar:
+            # Iqdb 3D
+            self.title = Iq3d[0].title[:250 - len(Iq[0].title)] + "..."
+            self.similiar = Iq3dsimilar
+            self.thumbnail = Iq3d[0].thumbnail
+            if Iq3d[0].url[:4] == 'http':
+                self.url = Iq3d[0].url
+            else:
+                self.url = f"https:{Iq3d[0].url}"
+            self.source = "Iqdb 3D"
+            for x in Iq3d:
+                try:
+                    self.another_titles.append(x.title)
+                    if x.url[:4] == 'http':
+                        self.another_urls.append(x.url)
+                    else:
+                        self.another_urls.append(f"https:{x.url}")
+                except:
+                    continue
 
 
-def saucer_sauceNao(name):
-    b = open("API_sauceNao")
-    saucer = SauceNAO(b.readline())
-    sauce = saucer.search(name)
-    return sauce
+class Saucer:
 
+    def saucer_sauceNao(name):
+        b = open("API_sauceNao")
+        saucer = SauceNAO(b.readline())
+        sauce = saucer.search(name)
+        return sauce
 
-def saucer_TraceMoe(name):
-    saucer = TraceMoe()
-    sauce = saucer.search(name)
-    return sauce
+    def saucer_TraceMoe(name):
+        saucer = TraceMoe()
+        sauce = saucer.search(name)
+        return sauce
 
+    def saucer_Ascii2D(name):
+        saucer = Ascii2D()
+        sauce = saucer.search(name)
+        return sauce
 
-def saucer_Ascii2D(name):
-    saucer = Ascii2D()
-    sauce = saucer.search(name)
-    return sauce
+    def saucer_Iqdb(name):
+        saucer = Iqdb()
+        sauce = saucer.search(name)
+        return sauce
 
+    def saucer_Iqdb3d(name):
+        saucer = Iqdb()
+        sauce = saucer.search_3d(name)
+        return sauce
 
-def saucer_Iqdb(name):
-    saucer = Iqdb()
-    sauce = saucer.search(name)
-    return sauce
-
-
-def saucer_Iqdb3d(name):
-    saucer = Iqdb()
-    sauce = saucer.search_3d(name)
-    return sauce
-
-
-def saucer_Google(name):
-    saucer = Google()
-    sauce = saucer.search(name)
-    return sauce
+    def saucer_Google(name):
+        saucer = Google()
+        sauce = saucer.search(name)
+        return sauce

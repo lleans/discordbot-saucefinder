@@ -9,7 +9,7 @@ colorama==0.4.4
 colorthief==0.2.1
 discord.py==1.6.0
 idna==2.10
-Kadal==0.2.4
+Kadal==0.2.6
 loguru==0.5.3
 multidict==5.1.0
 PicImageSearch @ git+https://github.com/lleans/PicImageSearch@ce2502b30b8672ed7102a4d33fd238baaf7f0815
