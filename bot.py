@@ -5,6 +5,7 @@ import saucer
 import re
 import kadal
 import random
+import traceback
 
 from colorthief import ColorThief
 from urllib.request import urlopen, Request
@@ -68,7 +69,10 @@ class MaidOurdick(discord.Client):
                 desc = "Likely **" + str(sauce.similiar) + \
                     f" %**\n\nAnother Results: \n"
         for x in range(4):
-            desc += f"** • [{sauce.another_titles[x][:256 - len(sauce.another_titles[x])]}]({sauce.another_urls[x]})**\n"
+            try:
+                desc += f"** • [{sauce.another_titles[x][:256 - len(sauce.another_titles[x])]}]({sauce.another_urls[x]})**\n"
+            except:
+                pass
         if anilist:
             e = discord.Embed(title=sauce.title, description=desc,
                               color=color_embed)
@@ -116,6 +120,7 @@ class MaidOurdick(discord.Client):
                         await message.channel.send(sauce.url)
                     except Exception as catch:
                         await temp.delete()
+                        traceback.print_exc()
                         error = self.error(message, catch)
                         await message.channel.send(embed=error)
                 else:
@@ -127,6 +132,7 @@ class MaidOurdick(discord.Client):
                         await message.channel.send(embed=embed)
                     except Exception as catch:
                         await temp.delete()
+                        traceback.print_exc()
                         error = self.error(message, catch)
                         await message.channel.send(embed=error)
 
