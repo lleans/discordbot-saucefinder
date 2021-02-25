@@ -92,7 +92,10 @@ class MaidOurdick(discord.Client):
                 e.set_image(url=sauce.thumbnail)
                 footer = f"{sauce.source}  •  {message.created_at.strftime('%x')}"
             except:
-                desc += f"\nLooks like your image doesn't show up, [click here]({sauce.thumbnail}) to open it"
+                if sauce.thumbnail[4:] == 'http':
+                    desc += f"\nLooks like the image doesn't show up, [click here]({sauce.thumbnail}) to open it"
+                else:
+                    desc += "\nLooks like the image doesn't show up, try click one of the results to open it"
                 e = discord.Embed(title=sauce.title, description=desc,
                                 color=int(random.choice(self.random_color).lstrip('#'), 16))
                 e.set_image(url="https://i.imgur.com/1CzcRfk.gif")
