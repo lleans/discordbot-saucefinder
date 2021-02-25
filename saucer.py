@@ -57,19 +57,16 @@ class Sauce:
 
         try:
             Googledata = Google[2].titles[0]
-        except:
+        except IndexError:
             Googledata = None
 
         sNaosimilar = float(sNao[0].similarity)
 
-        if sNaosimilar <= 50 and Iqsimilar <= 50 and Iq3dsimilar <= 50 and Googledata is not None:
+        if sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Googledata is not None:
             # Google
             self.title = Google[2].titles[0]
             self.similiar = None
-            try:
-                self.thumbnail = Google[2].thumbnail[0]
-            except:
-                self.thumbnail = None
+            self.thumbnail = Google[2].thumbnail[0]
             self.url = Google[2].urls[0]
             self.source = "Google"
             for x in Google:
@@ -78,7 +75,7 @@ class Sauce:
                     self.another_urls.append(x.urls[0])
                 except:
                     continue
-        elif sNaosimilar <= 50 and Iqsimilar <= 50 and Iq3dsimilar <= 50 and Googledata is None:
+        elif sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Googledata is None:
             # Ascii2d
             self.title = A2d[1].titles[0]
             self.similiar = None
@@ -106,7 +103,7 @@ class Sauce:
                     continue
         elif Iqsimilar >= sNaosimilar and Iqsimilar >= Iq3dsimilar:
             # Iqdb
-            self.title = Iq[0].title[:250 - len(Iq[0].title)] + "..."
+            self.title = Iq[0].title[:180 - len(Iq[0].title)] + "..."
             self.similiar = Iqsimilar
             self.thumbnail = Iq[0].thumbnail
             if Iq[0].url[:4] == 'http':
@@ -125,7 +122,7 @@ class Sauce:
                     continue
         elif Iq3dsimilar >= sNaosimilar and Iq3dsimilar >= Iqsimilar:
             # Iqdb 3D
-            self.title = Iq3d[0].title[:250 - len(Iq[0].title)] + "..."
+            self.title = Iq3d[0].title[:180 - len(Iq[0].title)] + "..."
             self.similiar = Iq3dsimilar
             self.thumbnail = Iq3d[0].thumbnail
             if Iq3d[0].url[:4] == 'http':

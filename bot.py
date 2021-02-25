@@ -15,10 +15,12 @@ class MaidOurdick(discord.Client):
     def __init__(self):
         super().__init__()
         self.regex_sauce_image = re.compile(r'"(.*?)"')
-        self.regex_sauce_video = re.compile(r'(.*avi)|(.*m4v)|(.*mpeg)|(.*mpg)|(.*webm)|(.*mp4)|<(.*?)>')
+        self.regex_sauce_video = re.compile(
+            r'(.*avi)|(.*m4v)|(.*mpeg)|(.*mpg)|(.*webm)|(.*mp4)|<(.*?)>')
         self.klient = kadal.Klient()
         self.anilist_cover_url = "https://img.anili.st/media/"
-        self. random_color = ["ffd663", "ff7363", "2f3136", "ff63c8", "ff636d", "faf67a"]
+        self. random_color = ["ffd663", "ff7363",
+                              "2f3136", "ff63c8", "ff636d", "faf67a"]
         print("start")
 
     async def on_ready(self):
@@ -30,13 +32,14 @@ class MaidOurdick(discord.Client):
             try:
                 media = await self.klient.search_manga(sauce.title, popularity=True, allow_adult=True)
                 thumbnail_anilist = f"{self.anilist_cover_url}{media.id}"
-                hex_color = media.cover_color or random.choice(self.random_color)
+                hex_color = media.cover_color or random.choice(
+                    self.random_color)
                 color_embed = int(hex_color.lstrip('#'), 16)
-                anilist = True
                 desc = "Likely **" + \
                     str(sauce.similiar) + f"%**\n\n***" + \
                     ", ".join(media.genres) + "***\n"
                 if media.description is not None:
+                    anilist = True
                     desc += media.description[:256 - len(
                         desc)] + f"... [(more)]({media.site_url})\n\nAnother Results: \n"
                     desc = desc.replace("<br>", "").replace(
@@ -51,14 +54,14 @@ class MaidOurdick(discord.Client):
             try:
                 media = await self.klient.search_anime(sauce.title, popularity=True, allow_adult=True)
                 thumbnail_anilist = f"{self.anilist_cover_url}{media.id}"
-                hex_color = media.cover_color or random.choice(self.random_color)
+                hex_color = media.cover_color or random.choice(
+                    self.random_color)
                 color_embed = int(hex_color.lstrip('#'), 16)
-                print(color_embed)
-                anilist = True
                 desc = "Likely **" + \
                     str(sauce.similiar) + f"%**\n\n***" + \
                     ", ".join(media.genres) + "***\n"
                 if media.description is not None:
+                    anilist = True
                     desc += media.description[:256 - len(
                         desc)] + f"... [(more)]({media.site_url})\n\nAnother Results: \n"
                     desc = desc.replace("<br>", "").replace(
@@ -70,9 +73,9 @@ class MaidOurdick(discord.Client):
                     f" %**\n\nAnother Results: \n"
         for x in range(4):
             try:
-                desc += f"** • [{sauce.another_titles[x][:256 - len(sauce.another_titles[x])]}]({sauce.another_urls[x]})**\n"
+                desc += f"** • [{sauce.another_titles[x][:150 - len(sauce.another_titles[x])]}...]({sauce.another_urls[x]})**\n"
             except:
-                pass
+                continue
         if anilist:
             e = discord.Embed(title=sauce.title, description=desc,
                               color=color_embed)
@@ -81,15 +84,15 @@ class MaidOurdick(discord.Client):
         else:
             try:
                 req = Request(sauce.thumbnail, headers={
-                            'User-Agent': 'Mozilla/5.0'})
-                fd = urlopen(req)
-                f = io.BytesIO(fd.read())
+                    'User-Agent': 'Mozilla/5.0'})
+                f = io.BytesIO(urlopen(req).read())
                 color_thief = ColorThief(f)
                 e = discord.Embed(title=sauce.title, description=desc,
                                 color=discord.Color.from_rgb(color_thief.get_color(quality=1)[0], color_thief.get_color(quality=1)[1], color_thief.get_color(quality=1)[2]))
                 e.set_image(url=sauce.thumbnail)
                 footer = f"{sauce.source}  •  {message.created_at.strftime('%x')}"
             except:
+                desc += f"\nLooks like your image doesn't show up, [click here]({sauce.thumbnail}) to open it"
                 e = discord.Embed(title=sauce.title, description=desc,
                                 color=int(random.choice(self.random_color).lstrip('#'), 16))
                 e.set_image(url="https://i.imgur.com/1CzcRfk.gif")
@@ -159,7 +162,7 @@ class MaidOurdick(discord.Client):
         a.add_field(name="Manga, anime & art",
                     value=f"[SauceNao]({'https://saucenao.com/'})\n[Ascii2D]({'https://ascii2d.net/'})\n[TraceMoe]({'https://trace.moe/'})", inline=True)
         a.add_field(
-            name="Evrything", value=f"[Google Images]({'https://images.google.com/'})\n[TinEye]({'https://tineye.com/'})\n[Yandex]({'https://yandex.com/images/'})", inline=True)
+            name="Everything", value=f"[Google Images]({'https://images.google.com/'})\n[TinEye]({'https://tineye.com/'})\n[Yandex]({'https://yandex.com/images/'})", inline=True)
         a.set_footer(icon_url=message.author.avatar_url,
                      text=f"{eror.args[0]} | {message.created_at.strftime('%x')}")
         a.set_thumbnail(url="https://i.imgur.com/foNFxKu.gif")
