@@ -92,7 +92,7 @@ class MaidOurdick(discord.Client):
                 e.set_image(url=sauce.thumbnail)
                 footer = f"{sauce.source}  •  {message.created_at.strftime('%x')}"
             except:
-                if sauce.thumbnail[4:] == 'http':
+                if sauce.thumbnail[:4] == 'http':
                     desc += f"\nLooks like the image doesn't show up, [click here]({sauce.thumbnail}) to open it"
                 else:
                     desc += "\nLooks like the image doesn't show up, try click one of the results to open it"
