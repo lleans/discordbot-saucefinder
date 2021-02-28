@@ -122,6 +122,7 @@ class MaidOurdick(discord.Client):
                         sauce = saucer.Sauce(m_clean[0], type="anime")
                         embed = await self.format_embed(sauce, type="anime", message=message, thumbnail=sauce.thumbnail)
                         await temp.delete()
+                        await message.channel.send(m_clean[0])
                         await message.channel.send(embed=embed)
                         await message.channel.send(sauce.url)
                     except Exception as catch:
