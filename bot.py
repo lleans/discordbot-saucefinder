@@ -6,7 +6,6 @@ import re
 import kadal
 import random
 import traceback
-import asyncio
 
 from colorthief import ColorThief
 from urllib.request import urlopen, Request
@@ -97,7 +96,7 @@ class MaidKantinYoyok(discord.Client):
                 req = Request(sauce.thumbnail, headers={'User-Agent': 'Mozilla/5.0'})
                 f = io.BytesIO(urlopen(req).read())
                 e = discord.Embed(title=sauce.title,
-                                  description=desc, color=int('#%02x%02x%02x' % ColorThief(f).get_color(quality=1)))
+                                  description=desc, color=int('%02x%02x%02x' % ColorThief(f).get_color(quality=1).lstrip('#'), 16))
                 e.set_thumbnail(url=original)
                 e.set_image(url=sauce.thumbnail)
             except:
