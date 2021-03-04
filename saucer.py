@@ -97,8 +97,8 @@ class Sauce:
             self.source = "SauceNao"
             for x in range(1, len(sNao)):
                 try:
-                    self.another_titles.append(A2d[x].title)
-                    self.another_urls.append(A2d[x].url)
+                    self.another_titles.append(sNao[x].title)
+                    self.another_urls.append(sNao[x].url)
                 except:
                     continue
         elif Iqsimilar >= sNaosimilar and Iqsimilar >= Iq3dsimilar:
