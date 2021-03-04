@@ -17,9 +17,11 @@ class MaidKantinYoyok(discord.Client):
 
     def __init__(self):
         super().__init__()
-        self.regex_command = re.compile(r'"(.*?)"')
-        self.video = re.compile(
-            r'(.*avi)|(.*m4v)|(.*mpeg)|(.*mpg)|(.*webm)|(.*mp4)|<(.*?)>')
+        self.regex_command = {
+            "image": re.compile(r'"(.*?)"'),
+            "video": re.compile(r',(.*?),')
+        }
+        self.video = re.compile(r'(.*avi)|(.*m4v)|(.*mpeg)|(.*mpg)|(.*webm)|(.*mp4)')
         self.kadal = kadal.Klient()
         print("start")
 
@@ -56,9 +58,13 @@ class MaidKantinYoyok(discord.Client):
 
     async def format_embed(self, sauce, type, message, original):
         method = self.kadal.search_manga if type == "manga" else self.kadal.search_anime
+        try:
+            nsfw = message.channel.is_nsfw()
+        except:
+            nsfw = False
         anilist = ""
         try:
-            media = await method(sauce.title, popularity=True, allow_adult=True)
+            media = await method(sauce.title, popularity=True, allow_adult=nsfw)
             if media.description is not None:
                 anilist = True
                 thumbnail_anilist = f"{self.ANILIST_URL}{media.id}"
@@ -96,7 +102,7 @@ class MaidKantinYoyok(discord.Client):
                 req = Request(sauce.thumbnail, headers={'User-Agent': 'Mozilla/5.0'})
                 f = io.BytesIO(urlopen(req).read())
                 e = discord.Embed(title=sauce.title,
-                                  description=desc, color=int('%02x%02x%02x' % ColorThief(f).get_color(quality=1).lstrip('#'), 16))
+                                  description=desc, color=int(('%02x%02x%02x' % ColorThief(f).get_color(quality=1)).lstrip('#'), 16))
                 e.set_thumbnail(url=original)
                 e.set_image(url=sauce.thumbnail)
             except:
@@ -116,9 +122,9 @@ class MaidKantinYoyok(discord.Client):
     async def on_ready(self):
         print('Logged as', maid.user.name, ",", maid.user.id)
 
-    async def search(self, name, message):
+    async def search(self, name, message, video):
         if name[:4] == "http":
-            if self.video.findall(name):
+            if video or self.video.findall(name):
                 try:
                     temp = await message.channel.send(embed=self.wait_please(message))
                     sauce = saucer.Sauce(name, type="anime")
@@ -145,19 +151,23 @@ class MaidKantinYoyok(discord.Client):
                     error = self.error(message, catch)
                     await message.channel.send(embed=error)
 
-    async def on_message(self, message):
-        if message.author == self.user:
-            return
-        # ignore her own message
-
-        m = self.regex_command.findall(message.clean_content)
+    async def filter(self, message, regex, method):
+        m = regex.findall(message.clean_content)
         m_clean = list(filter(bool, m))
         if m_clean:
             if len(m_clean) > 1:
                 for name in m_clean:
-                    await self.search(name, message)
+                    await self.search(name, message, method)
             else:
-                await self.search(m_clean[0], message)
+                await self.search(m_clean[0], message, method)
+
+    async def on_message(self, message):
+        if message.author == self.user:
+            return
+        # ignore her own message
+        for type, regex in self.regex_command.items():
+            method = True if type == "video" else False
+            await self.filter(message, regex, method)
         # check regex
 
 
