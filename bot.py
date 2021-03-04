@@ -82,7 +82,7 @@ class MaidKantinYoyok(discord.Client):
                 desc = "\nAnother Results: \n"
         except:
             desc = "Likely **" + str(sauce.similiar) + \
-                f" %**\n\nAnother Results: \n"
+                f"%**\n\nAnother Results: \n"
         # find title at anilist, if exist
 
         for x in range(5):

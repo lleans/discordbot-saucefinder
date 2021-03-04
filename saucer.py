@@ -30,9 +30,9 @@ class Sauce:
         self.thumbnail = tMoe[0].thumbnail
         self.url = tMoe[0].video_thumbnail
         self.source = "TraceMoe"
-        for x in tMoe:
-            self.another_titles.append(x.title)
-            self.another_urls.append(x.video_thumbnail)
+        for x in range(1, len(tMoe)):
+            self.another_titles.append(tMoe[x].title)
+            self.another_urls.append(tMoe[x].video_thumbnail)
 
     def sauce_image(self, name):
         Google = Saucer.saucer_Google(name).raw
@@ -69,10 +69,10 @@ class Sauce:
             self.thumbnail = Google[2].thumbnail[0]
             self.url = Google[2].urls[0]
             self.source = "Google"
-            for x in Google:
+            for x in range(3, len(Google)):
                 try:
-                    self.another_titles.append(x.titles[0])
-                    self.another_urls.append(x.urls[0])
+                    self.another_titles.append(Google[x].titles[0])
+                    self.another_urls.append(Google[x].urls[0])
                 except:
                     continue
         elif sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Googledata is None:
@@ -82,10 +82,10 @@ class Sauce:
             self.thumbnail = A2d[1].thumbnail[0]
             self.url = A2d[1].urls[0]
             self.source = "Ascii2D"
-            for x in A2d:
+            for x in range(2, len(A2d)):
                 try:
-                    self.another_titles.append(x.titles[0])
-                    self.another_urls.append(x.urls[0])
+                    self.another_titles.append(A2d[x].titles[0])
+                    self.another_urls.append(A2d[x].urls[0])
                 except:
                     continue
         elif sNaosimilar >= Iqsimilar and sNaosimilar >= Iq3dsimilar:
@@ -95,10 +95,10 @@ class Sauce:
             self.thumbnail = sNao[0].thumbnail
             self.url = sNao[0].url
             self.source = "SauceNao"
-            for x in sNao:
+            for x in range(1, len(sNao)):
                 try:
-                    self.another_titles.append(x.title)
-                    self.another_urls.append(x.url)
+                    self.another_titles.append(A2d[x].title)
+                    self.another_urls.append(A2d[x].url)
                 except:
                     continue
         elif Iqsimilar >= sNaosimilar and Iqsimilar >= Iq3dsimilar:
@@ -111,18 +111,18 @@ class Sauce:
             else:
                 self.url = f"https:{Iq[0].url}"
             self.source = "Iqdb"
-            for x in Iq:
+            for x in range(1, len(Iq)):
                 try:
-                    self.another_titles.append(x.title)
+                    self.another_titles.append(Iq[x].title)
                     if x.url[:4] == 'http':
-                        self.another_urls.append(x.url)
+                        self.another_urls.append(Iq[x].url)
                     else:
-                        self.another_urls.append(f"https:{x.url}")
+                        self.another_urls.append(f"https:{Iq[x].url}")
                 except:
                     continue
         elif Iq3dsimilar >= sNaosimilar and Iq3dsimilar >= Iqsimilar:
             # Iqdb 3D
-            self.title = Iq3d[0].title[:180 - len(Iq[0].title)] + "..."
+            self.title = Iq3d[0].title[:180 - len(Iq3d[0].title)] + "..."
             self.similiar = Iq3dsimilar
             self.thumbnail = Iq3d[0].thumbnail
             if Iq3d[0].url[:4] == 'http':
@@ -130,13 +130,13 @@ class Sauce:
             else:
                 self.url = f"https:{Iq3d[0].url}"
             self.source = "Iqdb 3D"
-            for x in Iq3d:
+            for x in range(1, len(Iq3d)):
                 try:
-                    self.another_titles.append(x.title)
+                    self.another_titles.append(Iq3d[x].title)
                     if x.url[:4] == 'http':
-                        self.another_urls.append(x.url)
+                        self.another_urls.append(Iq3d[x].url)
                     else:
-                        self.another_urls.append(f"https:{x.url}")
+                        self.another_urls.append(f"https:{Iq3d[x].url}")
                 except:
                     continue
 
