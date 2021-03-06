@@ -21,8 +21,10 @@ class MaidKantinYoyok(discord.Client):
             "image": re.compile(r'"(.*?)"'),
             "video": re.compile(r',(.*?),')
         }
-        self.video = re.compile(r'(.*avi)|(.*m4v)|(.*mpeg)|(.*mpg)|(.*webm)|(.*mp4)')
+        self.video = re.compile(
+            r'(.*avi)|(.*m4v)|(.*mpeg)|(.*mpg)|(.*webm)|(.*mp4)')
         self.kadal = kadal.Klient()
+        self.id_kantinyoyok="623123009770749974"
         print("start")
 
     @staticmethod
@@ -42,7 +44,7 @@ class MaidKantinYoyok(discord.Client):
 
     @staticmethod
     def error(message, eror):
-        des = "Looks like, there is something went wrong in the backend, maybe API down or anything else, or even god doesn't like it\n\n**What should i do ?**\nYou can use these website to reverse image manually\n "
+        des = "Looks like i couldn't find the sauce or there is something went wrong, maybe API down or anything else, or even god doesn't like it\n\n**What should i do ?**\nYou can use these website to reverse image manually\n "
         a = discord.Embed(title="Whoopsss.....", description=des,
                           color=discord.Color.from_rgb(255, 96, 56))
         a.add_field(name="Multi Service",
@@ -55,6 +57,24 @@ class MaidKantinYoyok(discord.Client):
                      text=f"{eror.args[0]} | {message.created_at.strftime('%x')}")
         a.set_thumbnail(url="https://i.imgur.com/foNFxKu.gif")
         return a
+
+    @staticmethod
+    def help(message):
+        desc = "So this is my first time with you\nso please be gentle with me....\n\n\nAnyway here the command list"
+        eg = {
+            "url_eg": '`"https: //i.imgur.com/1Czc ..."`',
+            "override_eg": '`,https: //i.imgur.com/F7ed ...,`'
+        }
+        embed = discord.Embed(title="Commands List",
+                              description=desc, color=discord.Color.from_rgb(255, 224, 99))
+        embed.add_field(name="Basic Command",
+                        value=f"If you find a picture or video, just right click and click copy link, then enter it like the command above\n\ne.g '{eg['url_eg']}'", inline=True)
+        embed.add_field(name="Override Command",
+                        value=f"For this case, when you found some anime screenshot or gif anything that you think it is anime, you can use this command to search for it\n\ne.g '{eg['override_eg']}'", inline=True)
+        embed.set_footer(icon_url=maid.user.avatar_url,
+                         text="Hayasaka Sauce Finder")
+        embed.set_thumbnail(url="https://i.imgur.com/38MpUXM.gif")
+        return embed
 
     async def format_embed(self, sauce, type, message, original):
         method = self.kadal.search_manga if type == "manga" else self.kadal.search_anime
@@ -99,7 +119,8 @@ class MaidKantinYoyok(discord.Client):
             e.set_thumbnail(url=original)
         else:
             try:
-                req = Request(sauce.thumbnail, headers={'User-Agent': 'Mozilla/5.0'})
+                req = Request(sauce.thumbnail, headers={
+                              'User-Agent': 'Mozilla/5.0'})
                 f = io.BytesIO(urlopen(req).read())
                 e = discord.Embed(title=sauce.title,
                                   description=desc, color=int(('%02x%02x%02x' % ColorThief(f).get_color(quality=1)).lstrip('#'), 16))
@@ -121,7 +142,7 @@ class MaidKantinYoyok(discord.Client):
 
     async def on_ready(self):
         print('Logged as', maid.user.name, ",", maid.user.id)
-        await maid.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="FOR THE SAUCE"))
+        await maid.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="Sauce ?"))
 
     async def search(self, name, message, video):
         if name[:4] == "http":
@@ -159,6 +180,8 @@ class MaidKantinYoyok(discord.Client):
             if len(m_clean) > 1:
                 for name in m_clean:
                     await self.search(name, message, method)
+            if m_clean[0] == "helps" or "help" or "hlp" or "h":
+                await message.channel.send(embed=self.help(message))
             else:
                 await self.search(m_clean[0], message, method)
 
