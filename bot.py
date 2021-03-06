@@ -121,6 +121,7 @@ class MaidKantinYoyok(discord.Client):
 
     async def on_ready(self):
         print('Logged as', maid.user.name, ",", maid.user.id)
+        await maid.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="FOR THE SAUCE"))
 
     async def search(self, name, message, video):
         if name[:4] == "http":
