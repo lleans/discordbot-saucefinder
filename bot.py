@@ -180,7 +180,7 @@ class MaidKantinYoyok(discord.Client):
             if len(m_clean) > 1:
                 for name in m_clean:
                     await self.search(name, message, method)
-            if m_clean[0] == "helps" or "help" or "hlp":
+            if m_clean[0] == "help":
                 await message.channel.send(embed=self.help(message))
             else:
                 await self.search(m_clean[0], message, method)
