@@ -11,7 +11,7 @@ from colorthief import ColorThief
 from urllib.request import urlopen, Request
 
 
-class MaidKantinYoyok(discord.Client):
+class MaidHayasaka(discord.Client):
     ANILIST_URL = "https://img.anili.st/media/"
     RANDOM_COLOR = ["ff5c5c", "ffae5c", "ffd45c", "ff5c6c", "ff5c5c", "5cb3ff"]
 
@@ -24,7 +24,6 @@ class MaidKantinYoyok(discord.Client):
         self.video = re.compile(
             r'(.*avi)|(.*m4v)|(.*mpeg)|(.*mpg)|(.*webm)|(.*mp4)')
         self.kadal = kadal.Klient()
-        self.id_kantinyoyok="623123009770749974"
         print("start")
 
     @staticmethod
@@ -195,7 +194,6 @@ class MaidKantinYoyok(discord.Client):
         # check regex
 
 
-maid = MaidKantinYoyok()
-f = open("TOKEN")
-token = f.readline()
+maid = MaidHayasaka()
+token = open("TOKEN").readline()
 maid.run(token)
