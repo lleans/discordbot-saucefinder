@@ -29,7 +29,7 @@ class Sauce:
         self.similiar = tMoesimilar
         self.thumbnail = tMoe[0].thumbnail
         self.url = tMoe[0].video_thumbnail
-        self.source = "TraceMoe"
+        self.source = "https://i.imgur.com/aXJEPmD.png"
         for x in range(1, len(tMoe)):
             self.another_titles.append(tMoe[x].title)
             self.another_urls.append(tMoe[x].video_thumbnail)
@@ -68,7 +68,7 @@ class Sauce:
             self.similiar = None
             self.thumbnail = Google[2].thumbnail[0]
             self.url = Google[2].urls[0]
-            self.source = "Google"
+            self.source = "https://i.imgur.com/Z9OLjXS.png"
             for x in range(3, len(Google)):
                 try:
                     self.another_titles.append(Google[x].titles[0])
@@ -81,7 +81,7 @@ class Sauce:
             self.similiar = None
             self.thumbnail = A2d[1].thumbnail[0]
             self.url = A2d[1].urls[0]
-            self.source = "Ascii2D"
+            self.source = "https://i.imgur.com/BA7hWTm.png"
             for x in range(2, len(A2d)):
                 try:
                     self.another_titles.append(A2d[x].titles[0])
@@ -94,7 +94,7 @@ class Sauce:
             self.similiar = sNaosimilar
             self.thumbnail = sNao[0].thumbnail
             self.url = sNao[0].url
-            self.source = "SauceNao"
+            self.source = "https://i.imgur.com/FhsgOiv.png"
             for x in range(1, len(sNao)):
                 try:
                     self.another_titles.append(sNao[x].title)
@@ -110,7 +110,7 @@ class Sauce:
                 self.url = Iq[0].url
             else:
                 self.url = f"https:{Iq[0].url}"
-            self.source = "Iqdb"
+            self.source = "https://i.imgur.com/r3kJwPF.png"
             for x in range(1, len(Iq)):
                 try:
                     self.another_titles.append(Iq[x].title)
@@ -129,7 +129,7 @@ class Sauce:
                 self.url = Iq3d[0].url
             else:
                 self.url = f"https:{Iq3d[0].url}"
-            self.source = "Iqdb 3D"
+            self.source = "https://i.imgur.com/r3kJwPF.png"
             for x in range(1, len(Iq3d)):
                 try:
                     self.another_titles.append(Iq3d[x].title)
