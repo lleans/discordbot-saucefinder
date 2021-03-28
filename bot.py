@@ -50,15 +50,15 @@ class MaidHayasaka(discord.Client):
         self.wait_message = {
             'title': "Looking for the sauce....",
             'desc': ["nice cock bruh",
-               "are you horny ?",
-               "just another degenerate weeb doing the stuff",
-               "Peter Piper picked a peck of pickled peppers\nA peck of pickled peppers Peter Piper picked\nIf Peter Piper picked a peck of pickled peppers\nWhere’s the peck of pickled peppers Peter Piper picked?",
-               "Hi cunt",
-               "The coconut nut is a giant nut\nIf you eat too much you'll get very fat\nNow the coconut nut is a big-big nut\nBut it's delicious nut is not a nut\nIt's the coco fruit (it's the coco fruit)\nOf the coco tree (of the coco tree)\nFrom the coco palm family"],
+                     "are you horny ?",
+                     "just another degenerate weeb doing the stuff",
+                     "Peter Piper picked a peck of pickled peppers\nA peck of pickled peppers Peter Piper picked\nIf Peter Piper picked a peck of pickled peppers\nWhere’s the peck of pickled peppers Peter Piper picked?",
+                     "Hi cunt",
+                     "The coconut nut is a giant nut\nIf you eat too much you'll get very fat\nNow the coconut nut is a big-big nut\nBut it's delicious nut is not a nut\nIt's the coco fruit (it's the coco fruit)\nOf the coco tree (of the coco tree)\nFrom the coco palm family"],
             'image': 'https://i.imgur.com/GE8uaS4.gif',
             'field_title': None,
             'color': [255, 201, 107],
-             'field_value': None
+            'field_value': None
         }
         self.kadal = kadal.Klient()
         print("start")
@@ -70,23 +70,21 @@ class MaidHayasaka(discord.Client):
             data = self.help_message
         else:
             data = self.error_message
-        
-        e = discord.Embed(title=data['title'], description=data['desc'] if type != "wait" else random.choice(data['desc']), color=discord.Color.from_rgb(data['color'][0], data['color'][1], data['color'][2])).set_author(name=maid.user.name, icon_url=maid.user.avatar_url).set_thumbnail(url=data['image'])
+
+        e = discord.Embed(title=data['title'], description=data['desc'] if type != "wait" else random.choice(data['desc']), color=discord.Color.from_rgb(
+            data['color'][0], data['color'][1], data['color'][2])).set_author(name=maid.user.name, icon_url=maid.user.avatar_url).set_thumbnail(url=data['image'])
         if data['field_title'] is not None:
             for index, a in enumerate(data['field_title']):
-                e.add_field(name=a,value=data['field_value'][index], inline=True)
-        e.set_footer(text=f"© HayasakaMaid | {message.created_at.strftime('%x')}" if error == None else f"© HayasakaMaid | {message.created_at.strftime('%x')} | {error}")
+                e.add_field(
+                    name=a, value=data['field_value'][index], inline=True)
+        e.set_footer(text=f"© HayasakaMaid | {message.created_at.strftime('%x')}" if error ==
+                     None else f"© HayasakaMaid | {message.created_at.strftime('%x')} | {error}")
         return e
 
-    async def format_embed(self, sauce, type, message, original):
-        method = self.kadal.search_manga if type == "manga" else self.kadal.search_anime
-        try:
-            nsfw = message.channel.is_nsfw()
-        except:
-            nsfw = False
+    async def format_embed(self, sauce, *, type, message, original):
         anilist = ""
         try:
-            media = await method(sauce.title, popularity=True, allow_adult=nsfw)
+            media = await type(sauce.title, popularity=True, allow_adult=True)
             if media.description is not None:
                 anilist = True
                 thumbnail_anilist = f"{self.ANILIST_URL}{media.id}"
@@ -107,13 +105,13 @@ class MaidHayasaka(discord.Client):
                 f"%**\n\nAnother Results: \n"
         # find title at anilist, if exist
 
-        for x in range(5):
+        for x in range(3):
             try:
                 desc += f"** • [{sauce.another_titles[x][:150 - len(sauce.another_titles[x])]}...]({sauce.another_urls[x]})**\n"
             except:
                 continue
         # give another results
-        footer = f"Requested by {message.author.name}  •  {message.created_at.strftime('%x')}"
+        footer = f"© HayasakaMaid | {message.created_at.strftime('%x')}"
         if anilist == True:
             e = discord.Embed(title=sauce.title,
                               description=desc, color=color_anilist)
@@ -139,7 +137,8 @@ class MaidHayasaka(discord.Client):
                 e.set_image(url="https://i.imgur.com/1CzcRfk.gif")
                 footer += " | Image not found 404"
         e.url = sauce.url
-        e.set_footer(icon_url=sauce.source, text=footer)
+        e.set_author(name=sauce.source[1], icon_url=sauce.source[0])
+        e.set_footer(icon_url=message.author.avatar_url, text=footer)
         return e
 
     async def on_ready(self):
@@ -148,13 +147,14 @@ class MaidHayasaka(discord.Client):
 
     async def search(self, name, message, video):
         if name[:4] == "http":
+            temp = await message.channel.send(embed=self.embed_builder(message, "wait"))
             if video or self.video.findall(name):
                 try:
-                    temp = await message.channel.send(embed=self.embed_builder(message, "wait"))
                     sauce = saucer.Sauce(name, type="anime")
-                    embed = await self.format_embed(sauce, type="anime", message=message, original=name)
+                    embed = await self.format_embed(sauce, type=self.kadal.search_anime, message=message, original=name)
                     await temp.delete()
-                    await message.channel.send(name)
+                    if self.video.findall(name):
+                        await message.channel.send(name)
                     await message.channel.send(embed=embed)
                     await message.channel.send(sauce.url)
                 except Exception as catch:
@@ -163,9 +163,8 @@ class MaidHayasaka(discord.Client):
                     await message.channel.send(embed=self.embed_builder(message, "error", catch))
             else:
                 try:
-                    temp = await message.channel.send(embed=self.embed_builder(message, "wait"))
                     sauce = saucer.Sauce(name, type="image")
-                    embed = await self.format_embed(sauce, type="manga", message=message, original=name)
+                    embed = await self.format_embed(sauce, type=self.kadal.search_manga, message=message, original=name)
                     await temp.delete()
                     await message.channel.send(embed=embed)
                 except Exception as catch:
@@ -188,6 +187,8 @@ class MaidHayasaka(discord.Client):
     async def on_message(self, message):
         if message.author == self.user:
             return
+        if not message.guild:
+            await message.author.send(embed=self.embed_builder(message, "error", "You couldn't use private message"))
         if maid.user in message.mentions:
             await message.channel.send(embed=self.embed_builder(message, "help"))
         # ignore her own message

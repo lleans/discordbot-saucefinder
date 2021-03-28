@@ -9,38 +9,73 @@ class Sauce:
         self.similiar = ""
         self.thumbnail = ""
         self.url = ""
-        self.source = ""
+        self.source: list = list()
         self.another_titles: list = list()
         self.another_urls: list = list()
-        self._getsauce(name=name, type=type)
 
-    def _getsauce(self, name, type):
         if type == "anime":
             self.sauce_anime(name)
 
         if type == "image":
             self.sauce_image(name)
 
+    @staticmethod
+    def saucer_sauceNao(name):
+        b = open("API_sauceNao")
+        saucer = SauceNAO(b.readline())
+        sauce = saucer.search(name)
+        return sauce
+
+    @staticmethod
+    def saucer_TraceMoe(name):
+        saucer = TraceMoe()
+        sauce = saucer.search(name)
+        return sauce
+
+    @staticmethod
+    def saucer_Ascii2D(name):
+        saucer = Ascii2D()
+        sauce = saucer.search(name)
+        return sauce
+
+    @staticmethod
+    def saucer_Iqdb(name):
+        saucer = Iqdb()
+        sauce = saucer.search(name)
+        return sauce
+
+    @staticmethod
+    def saucer_Iqdb3d(name):
+        saucer = Iqdb()
+        sauce = saucer.search_3d(name)
+        return sauce
+
+    @staticmethod
+    def saucer_Google(name):
+        saucer = Google()
+        sauce = saucer.search(name)
+        return sauce
+
     def sauce_anime(self, name):
-        tMoe = Saucer.saucer_TraceMoe(name).raw
+        tMoe = self.saucer_TraceMoe(name).raw
         tMoesimilar = float("{:.2f}".format(tMoe[0].similarity * 100))
 
         self.title = tMoe[0].title_english
         self.similiar = tMoesimilar
         self.thumbnail = tMoe[0].thumbnail
         self.url = tMoe[0].video_thumbnail
-        self.source = "https://i.imgur.com/aXJEPmD.png"
+        self.source.extend(["https://i.imgur.com/aXJEPmD.png", "TraceMoe"])
         for x in range(1, len(tMoe)):
             self.another_titles.append(tMoe[x].title)
             self.another_urls.append(tMoe[x].video_thumbnail)
 
     def sauce_image(self, name):
-        Google = Saucer.saucer_Google(name).raw
-        sNao = Saucer.saucer_sauceNao(name).raw
-        A2d = Saucer.saucer_Ascii2D(name).raw
+        Google = self.saucer_Google(name).raw
+        sNao = self.saucer_sauceNao(name).raw
+        A2d = self.saucer_Ascii2D(name).raw
 
         try:
-            Iq = Saucer.saucer_Iqdb(name).raw
+            Iq = self.saucer_Iqdb(name).raw
             regexIq = re.compile("[0-9]+")
             Iqs = regexIq.search(Iq[0].similarity)
             Iqsimilar = float(Iqs.group(0))
@@ -48,7 +83,7 @@ class Sauce:
             Iqsimilar = float(0)
 
         try:
-            Iq3d = Saucer.saucer_Iqdb3d(name).raw
+            Iq3d = self.saucer_Iqdb3d(name).raw
             regexIqs = re.compile("[0-9]+")
             Iq3D = regexIqs.search(Iq3d[0].similarity)
             Iq3dsimilar = float(Iq3D.group(0))
@@ -68,7 +103,7 @@ class Sauce:
             self.similiar = None
             self.thumbnail = Google[2].thumbnail[0]
             self.url = Google[2].urls[0]
-            self.source = "https://i.imgur.com/Z9OLjXS.png"
+            self.source.extend(["https://i.imgur.com/Z9OLjXS.png", "Google"])
             for x in range(3, len(Google)):
                 try:
                     self.another_titles.append(Google[x].titles[0])
@@ -81,7 +116,7 @@ class Sauce:
             self.similiar = None
             self.thumbnail = A2d[1].thumbnail[0]
             self.url = A2d[1].urls[0]
-            self.source = "https://i.imgur.com/BA7hWTm.png"
+            self.source.extend(["https://i.imgur.com/BA7hWTm.png", "Ascii2d"])
             for x in range(2, len(A2d)):
                 try:
                     self.another_titles.append(A2d[x].titles[0])
@@ -94,7 +129,7 @@ class Sauce:
             self.similiar = sNaosimilar
             self.thumbnail = sNao[0].thumbnail
             self.url = sNao[0].url
-            self.source = "https://i.imgur.com/FhsgOiv.png"
+            self.source.extend(["https://i.imgur.com/FhsgOiv.png", "SauceNao"])
             for x in range(1, len(sNao)):
                 try:
                     self.another_titles.append(sNao[x].title)
@@ -110,7 +145,7 @@ class Sauce:
                 self.url = Iq[0].url
             else:
                 self.url = f"https:{Iq[0].url}"
-            self.source = "https://i.imgur.com/r3kJwPF.png"
+            self.source.extend(["https://i.imgur.com/r3kJwPF.png", "Iqdb"])
             for x in range(1, len(Iq)):
                 try:
                     self.another_titles.append(Iq[x].title)
@@ -129,7 +164,7 @@ class Sauce:
                 self.url = Iq3d[0].url
             else:
                 self.url = f"https:{Iq3d[0].url}"
-            self.source = "https://i.imgur.com/r3kJwPF.png"
+            self.source.extend(["https://i.imgur.com/r3kJwPF.png" "Iqdb 3D"])
             for x in range(1, len(Iq3d)):
                 try:
                     self.another_titles.append(Iq3d[x].title)
@@ -139,37 +174,3 @@ class Sauce:
                         self.another_urls.append(f"https:{Iq3d[x].url}")
                 except:
                     continue
-
-
-class Saucer:
-
-    def saucer_sauceNao(name):
-        b = open("API_sauceNao")
-        saucer = SauceNAO(b.readline())
-        sauce = saucer.search(name)
-        return sauce
-
-    def saucer_TraceMoe(name):
-        saucer = TraceMoe()
-        sauce = saucer.search(name)
-        return sauce
-
-    def saucer_Ascii2D(name):
-        saucer = Ascii2D()
-        sauce = saucer.search(name)
-        return sauce
-
-    def saucer_Iqdb(name):
-        saucer = Iqdb()
-        sauce = saucer.search(name)
-        return sauce
-
-    def saucer_Iqdb3d(name):
-        saucer = Iqdb()
-        sauce = saucer.search_3d(name)
-        return sauce
-
-    def saucer_Google(name):
-        saucer = Google()
-        sauce = saucer.search(name)
-        return sauce
