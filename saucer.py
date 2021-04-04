@@ -92,6 +92,7 @@ class Sauce:
 
         try:
             Googledata = Google[2].titles[0]
+            self.thumbnail = Google[2].thumbnail[0]
         except IndexError:
             Googledata = None
 
