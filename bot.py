@@ -1,11 +1,10 @@
 import discord
-import os
 import io
-import saucer
 import re
 import kadal
 import random
 import traceback
+import saucer
 
 from colorthief import ColorThief
 from urllib.request import urlopen, Request
@@ -61,6 +60,7 @@ class MaidHayasaka(discord.Client):
             'field_value': None
         }
         self.kadal = kadal.Klient()
+        self.sauce = saucer.Sauce()
         print("start")
 
     def embed_builder(self, message, type, error=None):
@@ -77,93 +77,87 @@ class MaidHayasaka(discord.Client):
             for index, a in enumerate(data['field_title']):
                 e.add_field(
                     name=a, value=data['field_value'][index], inline=True)
-        e.set_footer(text=f"© HayasakaMaid | {message.created_at.strftime('%x')}" if error ==
-                     None else f"© HayasakaMaid | {message.created_at.strftime('%x')} | {error}")
+        e.set_footer(text=f"© {maid.user.name} | {message.created_at.strftime('%x')}" if error ==
+                     None else f"© {maid.user.name} | {message.created_at.strftime('%x')} | {error}")
         return e
 
-    async def format_embed(self, sauce, *, type, message, original):
-        anilist = ""
+    async def format_embed(self, sauce, *, type, message, original, anilist=False):
         try:
-            media = await type(sauce.title, popularity=True, allow_adult=True)
+            media = await type(sauce['title'], popularity=True, allow_adult=True)
             if media.description is not None:
                 anilist = True
                 thumbnail_anilist = f"{self.ANILIST_URL}{media.id}"
                 hex_color = media.cover_color or random.choice(
                     self.RANDOM_COLOR)
                 color_anilist = int(hex_color.lstrip('#'), 16)
-                desc = "Likely **" + \
-                    str(sauce.similiar) + f"%**\n\n***" + \
-                    ", ".join(media.genres) + "***\n"
-                desc += media.description[:256 - len(
-                    desc)] + f"... [(more)]({media.site_url})\n\nAnother Results: \n"
-                desc = desc.replace("<br>", "").replace(
-                    "<i>", "").replace("/n", "")
+                desc = f"Likely **{str(sauce['similiar'])}**\n\n***{', '.join(media.genres)}***\n"
+                desc += media.description[:256 - len(desc)] + f"... [(more)]({media.site_url})\n\nAnother Results: \n"
+                desc = desc.replace("<br>", "").replace("<i>", "").replace("<b>", "")
             else:
                 desc = "\nAnother Results: \n"
         except:
-            desc = "Likely **" + str(sauce.similiar) + \
+            desc = "Likely **" + str(sauce['similiar']) + \
                 f"%**\n\nAnother Results: \n"
         # find title at anilist, if exist
 
         for x in range(3):
             try:
-                desc += f"** • [{sauce.another_titles[x][:150 - len(sauce.another_titles[x])]}...]({sauce.another_urls[x]})**\n"
+                desc += f"** • [{sauce['another_titles'][x][:150 - len(sauce['another_titles'][x])]} ...]({sauce['another_urls'][x]})**\n"
             except:
                 continue
         # give another results
-        footer = f"© HayasakaMaid | {message.created_at.strftime('%x')}"
+        footer = f"© {maid.user.name} | {message.created_at.strftime('%x')}"
         if anilist == True:
-            e = discord.Embed(title=sauce.title,
+            e = discord.Embed(title=sauce['title'],
                               description=desc, color=color_anilist)
             e.set_image(url=thumbnail_anilist)
             e.set_thumbnail(url=original)
         else:
             try:
-                req = Request(sauce.thumbnail, headers={
+                req = Request(sauce['thumbnail'], headers={
                               'User-Agent': 'Mozilla/5.0'})
                 f = io.BytesIO(urlopen(req).read())
                 e = discord.Embed(title=sauce.title,
                                   description=desc, color=int(('%02x%02x%02x' % ColorThief(f).get_color(quality=1)).lstrip('#'), 16))
                 e.set_thumbnail(url=original)
-                e.set_image(url=sauce.thumbnail)
+                e.set_image(url=sauce['thumbnail'])
             except:
-                if sauce.thumbnail[:4] == 'http':
-                    desc += f"\nLooks like the image doesn't show up, [click here]({sauce.thumbnail}) to open it"
+                if sauce['thumbnail'][:4] == 'http':
+                    desc += f"\nLooks like the image doesn't show up, [click here]({sauce['thumbnail']}) to open it"
                 else:
                     desc += "\nLooks like there is no thumbnail for this, try click one of the results to open it"
-                e = discord.Embed(title=sauce.title,
+                e = discord.Embed(title=sauce['title'],
                                   description=desc, color=int(random.choice(self.RANDOM_COLOR).lstrip('#'), 16))
                 e.set_thumbnail(url=original)
                 e.set_image(url="https://i.imgur.com/1CzcRfk.gif")
                 footer += " | Image not found 404"
-        e.url = sauce.url
-        e.set_author(name=sauce.source[1], icon_url=sauce.source[0])
+        e.url = sauce['url']
+        e.set_author(name=sauce['source'][1], icon_url=sauce['source'][0])
         e.set_footer(icon_url=message.author.avatar_url, text=footer)
         return e
 
     async def on_ready(self):
         print('Logged as', maid.user.name, ",", maid.user.id)
-        await maid.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="@HayasakaMaid"))
+        await maid.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=f"@{maid.user.name}"))
 
     async def search(self, name, message, video):
-        if name[:4] == "http":
             temp = await message.channel.send(embed=self.embed_builder(message, "wait"))
             if video or self.video.findall(name):
                 try:
-                    sauce = saucer.Sauce(name, type="anime")
+                    sauce = await self.sauce.sauce_anime(name=name)
                     embed = await self.format_embed(sauce, type=self.kadal.search_anime, message=message, original=name)
                     await temp.delete()
                     if self.video.findall(name):
                         await message.channel.send(name)
                     await message.channel.send(embed=embed)
-                    await message.channel.send(sauce.url)
+                    await message.channel.send(sauce['url'])
                 except Exception as catch:
                     await temp.delete()
                     traceback.print_exc()
                     await message.channel.send(embed=self.embed_builder(message, "error", catch))
             else:
                 try:
-                    sauce = saucer.Sauce(name, type="image")
+                    sauce = await self.sauce.sauce_image(name=name)
                     embed = await self.format_embed(sauce, type=self.kadal.search_manga, message=message, original=name)
                     await temp.delete()
                     await message.channel.send(embed=embed)
@@ -178,17 +172,17 @@ class MaidHayasaka(discord.Client):
         if m_clean:
             if len(m_clean) > 1:
                 for name in m_clean:
-                    await self.search(name, message, method)
-            if m_clean[0] == "help":
+                    if name[:4] == "http":
+                        await self.search(name, message, method)
+            elif m_clean[0] == "help":
                 await message.channel.send(embed=self.embed_builder(message, "help"))
             else:
-                await self.search(m_clean[0], message, method)
+                if m_clean[0][:4] == "http":
+                    await self.search(m_clean[0], message, method)
 
     async def on_message(self, message):
         if message.author == self.user:
             return
-        if not message.guild:
-            await message.author.send(embed=self.embed_builder(message, "error", "You couldn't use private message"))
         if maid.user in message.mentions:
             await message.channel.send(embed=self.embed_builder(message, "help"))
         # ignore her own message
