@@ -7,10 +7,42 @@ class Sauce:
     def __init__(self):
         super().__init__()
         self.client = PicImageSearch.Search()
+        self.Googletask = None
+        self.sNaotask = None
+        self.A2dtask = None
+        self.Iqtask = None
+        self.Iq3dtask = None
+        self.tMoetask = None
+
+    
+    async def saucer_sauceNao(self, name):
+        b = open("API_sauceNao")
+        self.sNaotask = await self.client.saucenao(url=name, api_key=b.readline())
+        return 
+
+    async def saucer_TraceMoe(self, name):
+        self.tMoetask = await self.client.tracemoe(name)
+        return 
+
+    async def saucer_Ascii2D(self, name):
+        self.A2dtask = await self.client.ascii2d(name)
+        return
+
+    async def saucer_Iqdb(self, name):
+        self.Iqtask = await self.client.iqdb(name)
+        return
+
+    async def saucer_Iqdb3d(self, name):
+        self.Iq3dtask = await self.client.iqdb_3d(name)
+        return
+
+    async def saucer_Google(self, name):
+        self.Googletask = await self.client.google(name)
+        return
 
     async def sauce_anime(self, name):
-        tMoetask = await self.client.tracemoe(url=name)
-        tMoe = tMoetask.raw
+        await self.saucer_TraceMoe(name)
+        tMoe = self.tMoetask.raw
         similiar = tMoe[0].similarity
         res = {
             'title': tMoe[0].title_english,
@@ -31,17 +63,17 @@ class Sauce:
 
     async def sauce_image(self, name):
         # Request
-        Googletask, sNaotask, A2dtask, Iqtask, Iq3dtask = await asyncio.gather(self.client.google(url=name), self.client.saucenao(url=name, api_key=open("API_sauceNao").readline()), self.client.ascii2d(url=name), self.client.iqdb(url=name), self.client.iqdb_3d(url=name))
-        Google, sNao, A2d = Googletask.raw, sNaotask.raw, A2dtask.raw
+        await asyncio.wait([self.saucer_Ascii2D(name), self.saucer_Google(name), self.saucer_Iqdb(name), self.saucer_Iqdb3d(name), self.saucer_sauceNao(name)])
+        Google, sNao, A2d = self.Googletask.raw, self.sNaotask.raw, self.A2dtask.raw
 
         try:
-            Iq = Iqtask.raw
+            Iq = self.Iqtask.raw
             Iqsimilar = Iq[0].similarity
         except:
             Iqsimilar = float(0)
 
         try:
-            Iq3d = Iq3dtask.raw
+            Iq3d = self.Iq3dtask.raw
             Iq3dsimilar = Iq3d[0].similarity
         except:
             Iq3dsimilar = float(0)
