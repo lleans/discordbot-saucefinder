@@ -9,7 +9,7 @@ class Sauce:
         self.client = PicImageSearch.Search()
 
     async def sauce_anime(self, name):
-        async with asyncio.Semaphore(3):
+        async with asyncio.Semaphore(5):
             tMoetask = await self.client.tracemoe(url=name)
             tMoe = tMoetask.raw
             similiar = tMoe[0].similarity
@@ -32,7 +32,7 @@ class Sauce:
 
     async def sauce_image(self, name):
         # Request
-        async with asyncio.Semaphore(3):
+        async with asyncio.Semaphore(5):
             Googletask, sNaotask, A2dtask, Iqtask, Iq3dtask = await asyncio.gather(self.client.google(url=name), self.client.saucenao(url=name, api_key=open("API_sauceNao").readline()), self.client.ascii2d(url=name), self.client.iqdb(url=name), self.client.iqdb_3d(url=name))
             Google, sNao, A2d = Googletask.raw, sNaotask.raw, A2dtask.raw
 
