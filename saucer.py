@@ -108,7 +108,7 @@ class Sauce:
                         continue
                 return res
 
-            elif sNaosimilar >= Iqsimilar and sNaosimilar >= Iq3dsimilar:
+            elif sNaosimilar >= Iqsimilar and sNaosimilar >= Iq3dsimilar and sNaosimilar >= 80:
                 # SauceNao
                 res = {
                     'title': sNao[0].title,
@@ -168,3 +168,5 @@ class Sauce:
                 return res
             elif Iq3dsimilar == 0.0 and Iqsimilar == 0.0 and sNaosimilar == 0.0 and A2ddata is None and Googledata is None:
                 raise Exception("All source down")
+            else:
+                raise Exception("Source not found")

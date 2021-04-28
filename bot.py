@@ -37,8 +37,8 @@ class MaidHayasaka(discord.Client):
 
     @staticmethod
     def error(message, error):
-        e = discord.Embed(title="Whoopsss.....", description="Looks like i couldn't find the sauce or there is something went wrong or even god doesn't like it\n\n**What should i do ?**\nYou can use these website to reverse image manually\n", color=discord.Color.from_rgb(255, 96, 56)).set_thumbnail(url="https://i.imgur.com/foNFxKu.gif").add_field(name='Multi Service', value=f"[Iqdb]({'https://iqdb.org/'})\n[ImgOps]({'https://imgops.com/'})").add_field(
-            name='Manga, anime & art', value=f"[SauceNao]({'https://saucenao.com/'})\n[Ascii2D]({'https://ascii2d.net/'})\n[TraceMoe]({'https://trace.moe/'})").add_field(name='Everything', value=f"[Google Images]({'https://images.google.com/'})\n[TinEye]({'https://tineye.com/'})\n[Yandex]({'https://yandex.com/images/'})").set_author(name=maid.user.name, icon_url=maid.user.avatar_url).set_footer(text=f"© {maid.user.name} | {message.created_at.strftime('%x')} | Error log: {error}")
+        e = discord.Embed(title="404 not found......" if Exception("Source not found") else "Whoopsss.....", description="Looks like i couldn't find the sauce, maybe god doesn't like it\n\n**What should i do ?**\nYou can use these website to reverse image manually\n" if Exception("Source not found") else "Looks like the source is down, maybe god doesn't like it\n\n**What should i do ?**\nYou can use these website to reverse image manually\n", color=discord.Color.from_rgb(255, 96, 56)).set_thumbnail(url="https://i.imgur.com/foNFxKu.gif").add_field(name='Multi Service', value=f"[Iqdb]({'https://iqdb.org/'})\n[ImgOps]({'https://imgops.com/'})").add_field(
+            name='Manga, anime & art', value=f"[SauceNao]({'https://saucenao.com/'})\n[Ascii2D]({'https://ascii2d.net/'})\n[TraceMoe]({'https://trace.moe/'})").add_field(name='Everything', value=f"[Google Images]({'https://images.google.com/'})\n[TinEye]({'https://tineye.com/'})\n[Yandex]({'https://yandex.com/images/'})").set_author(name=maid.user.name, icon_url=maid.user.avatar_url).set_footer(text=f"© {maid.user.name} | {message.created_at.strftime('%x')} | {error}")
         return e
 
     @staticmethod
@@ -65,9 +65,9 @@ class MaidHayasaka(discord.Client):
                     self.RANDOM_COLOR)
                 color_anilist = int(hex_color.lstrip('#'), 16)
                 desc = f"Likely **{sauce['similiar']}%**\n\n***{', '.join(media.genres)}***\n"
-                desc += media.description[:256 - len(
+                anilist_desc = media.description.replace("<br>", "").replace("<i>", "").replace("<b>", "").replace("</br>", "").replace("</i>", "").replace("</b>", "")
+                desc += anilist_desc[:256 - len(
                     desc)] + f"... [(more)]({media.site_url})\n\nAnother Results: \n"
-                desc = desc.replace("<br>", "").replace("<i>", "").replace("<b>", "").replace("</br>", "").replace("/<i>", "").replace("</b>", "")
             else:
                 desc = "\nAnother Results: \n"
         except:
