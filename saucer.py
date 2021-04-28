@@ -11,7 +11,10 @@ class Sauce:
     async def sauce_anime(self, name):
         async with asyncio.Semaphore(4):
             tMoetask = await self.client.tracemoe(url=name)
-            tMoe = tMoetask.raw
+            try:
+                tMoe = tMoetask.raw
+            except:
+                raise Exception("Source TraceMoe Down")
             similiar = tMoe[0].similarity
             res = {
                 'title': tMoe[0].title_english,
@@ -34,7 +37,12 @@ class Sauce:
         # Request
         async with asyncio.Semaphore(4):
             Googletask, sNaotask, A2dtask, Iqtask, Iq3dtask = await asyncio.gather(self.client.google(url=name), self.client.saucenao(url=name, api_key=open("API_sauceNao").readline()), self.client.ascii2d(url=name), self.client.iqdb(url=name), self.client.iqdb_3d(url=name))
-            Google, sNao, A2d = Googletask.raw, sNaotask.raw, A2dtask.raw
+
+            try:
+                A2d = A2dtask.raw
+                A2ddata = True
+            except:
+                A2ddata = None
 
             try:
                 Iq = Iqtask.raw
@@ -49,15 +57,20 @@ class Sauce:
                 Iq3dsimilar = float(0)
 
             try:
-                Googledata = Google[2].title
+                Google = Googletask.raw
                 if Google[2].thumbnail == "":
                     Googledata = None
+                Googledata = True
             except:
                 Googledata = None
 
-            sNaosimilar = sNao[0].similarity
-
-            if sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Googledata is not None:
+            try:
+                sNao = sNaotask.raw
+                sNaosimilar = sNao[0].similarity
+            except:
+                sNaosimilar = float(0)
+            
+            if sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Googledata is not None and A2ddata is None:
                 # Google
                 res = {
                     'title': Google[2].title,
@@ -76,7 +89,7 @@ class Sauce:
                         continue
                 return res
 
-            elif sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Googledata is None:
+            elif sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Googledata is None and A2ddata is not None:
                 # Ascii2d
                 res = {
                     'title': A2d[1].title,
@@ -153,3 +166,5 @@ class Sauce:
                     except:
                         continue
                 return res
+            elif Iq3dsimilar == 0.0 and Iqsimilar == 0.0 and sNaosimilar == 0.0 and A2ddata is None and Googledata is None:
+                raise Exception("All source down")

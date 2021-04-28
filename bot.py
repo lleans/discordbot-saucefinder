@@ -6,7 +6,7 @@ import random
 import traceback
 import saucer
 
-from aiohttp import ClientSession
+from urllib.request import urlopen, Request
 from colorthief import ColorThief
 
 
@@ -37,8 +37,8 @@ class MaidHayasaka(discord.Client):
 
     @staticmethod
     def error(message, error):
-        e = discord.Embed(title="Whoopsss.....", description="Looks like i couldn't find the sauce or there is something went wrong, maybe API down or even god doesn't like it\n\n**What should i do ?**\nYou can use these website to reverse image manually\n", color=discord.Color.from_rgb(255, 96, 56)).set_thumbnail(url="https://i.imgur.com/foNFxKu.gif").add_field(name='Multi Service', value=f"[Iqdb]({'https://iqdb.org/'})\n[ImgOps]({'https://imgops.com/'})").add_field(
-            name='Manga, anime & art', value=f"[SauceNao]({'https://saucenao.com/'})\n[Ascii2D]({'https://ascii2d.net/'})\n[TraceMoe]({'https://trace.moe/'})").add_field(name='Everything', value=f"[Google Images]({'https://images.google.com/'})\n[TinEye]({'https://tineye.com/'})\n[Yandex]({'https://yandex.com/images/'})").set_author(name=maid.user.name, icon_url=maid.user.avatar_url).set_footer(text=f"© {maid.user.name} | {message.created_at.strftime('%x')} | {error}")
+        e = discord.Embed(title="Whoopsss.....", description="Looks like i couldn't find the sauce or there is something went wrong or even god doesn't like it\n\n**What should i do ?**\nYou can use these website to reverse image manually\n", color=discord.Color.from_rgb(255, 96, 56)).set_thumbnail(url="https://i.imgur.com/foNFxKu.gif").add_field(name='Multi Service', value=f"[Iqdb]({'https://iqdb.org/'})\n[ImgOps]({'https://imgops.com/'})").add_field(
+            name='Manga, anime & art', value=f"[SauceNao]({'https://saucenao.com/'})\n[Ascii2D]({'https://ascii2d.net/'})\n[TraceMoe]({'https://trace.moe/'})").add_field(name='Everything', value=f"[Google Images]({'https://images.google.com/'})\n[TinEye]({'https://tineye.com/'})\n[Yandex]({'https://yandex.com/images/'})").set_author(name=maid.user.name, icon_url=maid.user.avatar_url).set_footer(text=f"© {maid.user.name} | {message.created_at.strftime('%x')} | Error log: {error}")
         return e
 
     @staticmethod
@@ -65,8 +65,9 @@ class MaidHayasaka(discord.Client):
                     self.RANDOM_COLOR)
                 color_anilist = int(hex_color.lstrip('#'), 16)
                 desc = f"Likely **{sauce['similiar']}%**\n\n***{', '.join(media.genres)}***\n"
-                anilist_description = media.description.replace("<br>", "").replace("<i>", "").replace("<b>", "").replace("</br>", "").replace("/<i>", "").replace("</b>", "")
-                desc += anilist_description[:256 - len(desc)] + f"... [(more)]({media.site_url})\n\nAnother Results: \n"
+                desc += media.description[:256 - len(
+                    desc)] + f"... [(more)]({media.site_url})\n\nAnother Results: \n"
+                desc = desc.replace("<br>", "").replace("<i>", "").replace("<b>", "").replace("</br>", "").replace("/<i>", "").replace("</b>", "")
             else:
                 desc = "\nAnother Results: \n"
         except:
@@ -86,11 +87,11 @@ class MaidHayasaka(discord.Client):
             e.set_image(url=thumbnail_anilist)
         else:
             try:
-                async with ClientSession() as Session:
-                    async with Session.get(sauce['thumbnail'], allow_redirects=True, headers={'User-Agent': 'Mozilla/5.0'}) as data:
-                        f = io.BytesIO(await data.read())
-                        e = discord.Embed(title=sauce['title'], description=desc, color=int(('%02x%02x%02x' % ColorThief(f).get_color(quality=1)).lstrip('#'), 16))
-                        e.set_image(url=sauce['thumbnail'])
+                req = Request(sauce['thumbnail'], headers={
+                              'User-Agent': 'Mozilla/5.0'})
+                f = io.BytesIO(urlopen(req).read())
+                e = discord.Embed(title=sauce['title'], description=desc, color=int(('%02x%02x%02x' % ColorThief(f).get_color(quality=1)).lstrip('#'), 16))
+                e.set_image(url=sauce['thumbnail'])
             except:
                 if sauce['thumbnail'][:4] == 'http':
                     desc += f"\nLooks like the image doesn't show up, [click here]({sauce['thumbnail']}) to open it"
