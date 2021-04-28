@@ -70,7 +70,7 @@ class Sauce:
             except:
                 sNaosimilar = float(0)
             
-            if sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Googledata is not None and A2ddata is None:
+            if sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Googledata:
                 # Google
                 res = {
                     'title': Google[2].title,
@@ -89,7 +89,7 @@ class Sauce:
                         continue
                 return res
 
-            elif sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Googledata is None and A2ddata is not None:
+            elif sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Googledata == None and A2ddata == True:
                 # Ascii2d
                 res = {
                     'title': A2d[1].title,
