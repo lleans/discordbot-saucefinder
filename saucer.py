@@ -17,7 +17,7 @@ class Sauce:
                 raise Exception("Source TraceMoe Down")
             similiar = tMoe[0].similarity
             res = {
-                'title': tMoe[0].title_english,
+                'title': tMoe[0].title_english or tMoe[0].title,
                 'similiar': similiar,
                 'source': ["https://i.imgur.com/aXJEPmD.png", "TraceMoe"],
                 'thumbnail': tMoe[0].thumbnail,
@@ -58,9 +58,10 @@ class Sauce:
 
             try:
                 Google = Googletask.raw
-                if Google[2].thumbnail == "":
+                if Google[2].thumbnail == "" or  Google[2].title == "Description" or Google[2].title == "Description":
                     Googledata = None
-                Googledata = True
+                else:
+                    Googledata = True
             except:
                 Googledata = None
 

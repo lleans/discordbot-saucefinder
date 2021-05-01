@@ -58,7 +58,7 @@ class MaidHayasaka(discord.Client):
         # Anilist
         try:
             media = await type(sauce['title'], popularity=True, allow_adult=True)
-            if media.description is not None:
+            if media.description is not None and sauce['source'][1] != "Ascii2d":
                 anilist = True
                 thumbnail_anilist = f"{self.ANILIST_URL}{media.id}"
                 hex_color = media.cover_color or random.choice(
@@ -69,16 +69,19 @@ class MaidHayasaka(discord.Client):
                 desc += anilist_desc[:256 - len(
                     desc)] + f"... [(more)]({media.site_url})\n\nAnother Results: \n"
             else:
-                desc = "\nAnother Results: \n"
+                desc = f"Likely **{sauce['similiar']}%**\n\nAnother Results: \n"
         except:
             desc = f"Likely **{sauce['similiar']}%**\n\nAnother Results: \n"
 
         # Another Resulta
-        for x in range(3):
-            try:
-                desc += f"** • [{sauce['another_titles'][x][:150 - len(sauce['another_titles'][x])]} ...]({sauce['another_urls'][x]})**\n"
-            except:
-                continue
+        if not sauce['another_titles']:
+            desc += "**Unfortunately there is no other results**\n"
+        else:
+            for x in range(3):
+                try:
+                    desc += f"** • [{sauce['another_titles'][x][:150 - len(sauce['another_titles'][x])]} ...]({sauce['another_urls'][x]})**\n"
+                except:
+                    continue
 
         # Embed
         if anilist == True:
