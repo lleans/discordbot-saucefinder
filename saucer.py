@@ -77,7 +77,7 @@ class Sauce:
                 res = {
                     'title': Google[2].title,
                     'thumbnail': Google[2].thumbnail,
-                    'similiar': random.choice(range(90, 100)),
+                    'similiar': float(random.choice(range(90, 100))),
                     'source': ["https://i.imgur.com/Z9OLjXS.png", "Google"],
                     'url': Google[2].url,
                     'another_titles': list(),
