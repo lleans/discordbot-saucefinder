@@ -1,4 +1,5 @@
 import re
+import random
 import asyncio
 import PicImageSearch
 
@@ -76,7 +77,7 @@ class Sauce:
                 res = {
                     'title': Google[2].title,
                     'thumbnail': Google[2].thumbnail,
-                    'similiar': None,
+                    'similiar': random.choice(range(90, 100)),
                     'source': ["https://i.imgur.com/Z9OLjXS.png", "Google"],
                     'url': Google[2].url,
                     'another_titles': list(),
