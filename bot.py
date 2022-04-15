@@ -1,6 +1,7 @@
 import discord
 import io
 import re
+import os
 import kadal
 import random
 import traceback
@@ -167,5 +168,5 @@ class MaidHayasaka(discord.Client):
 
 
 maid = MaidHayasaka()
-token = open("TOKEN").readline()
+token = os.environ.get('BOT_TOKEN')
 maid.run(token)

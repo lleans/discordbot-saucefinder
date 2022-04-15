@@ -1,4 +1,4 @@
-import re
+import os
 import random
 import asyncio
 import PicImageSearch
@@ -37,7 +37,7 @@ class Sauce:
     async def sauce_image(self, name):
         # Request
         async with asyncio.Semaphore(4):
-            Googletask, sNaotask, A2dtask, Iqtask, Iq3dtask = await asyncio.gather(self.client.google(url=name), self.client.saucenao(url=name, api_key=open("API_sauceNao").readline()), self.client.ascii2d(url=name), self.client.iqdb(url=name), self.client.iqdb_3d(url=name))
+            Googletask, sNaotask, A2dtask, Iqtask, Iq3dtask = await asyncio.gather(self.client.google(url=name), self.client.saucenao(url=name, api_key=os.environ.get('SAUCENAO_TOKEN')), self.client.ascii2d(url=name), self.client.iqdb(url=name), self.client.iqdb_3d(url=name))
 
             try:
                 A2d = A2dtask.raw
