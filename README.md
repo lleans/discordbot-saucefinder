@@ -3,8 +3,8 @@ For those of you who find screenshots of manga but you don't know the sauce ?, t
 
 ## Setup 🚀
 Make sure you make Environment Variable with name:
-```BOT_TOKEN``` For discord token bot,
-```SAUCENAO_TOKEN``` For SauceNao token.
+<br />```BOT_TOKEN``` For discord token bot,
+<br />```SAUCENAO_TOKEN``` For SauceNao token.
 
 ## Supported website so far 🤠
 - SauceNao 💄
