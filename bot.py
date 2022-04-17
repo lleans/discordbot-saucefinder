@@ -7,12 +7,11 @@ import random
 import traceback
 import saucer
 
-from urllib.request import urlopen, Request
+from urllib.request import urlopen
 from colorthief import ColorThief
 
 
 class MaidHayasaka(discord.Client):
-    ANILIST_URL = "https://img.anili.st/media/"
     RANDOM_COLOR = ["ff5c5c", "ffae5c", "ffd45c", "ff5c6c", "ff5c5c", "5cb3ff"]
 
     def __init__(self):
@@ -59,9 +58,9 @@ class MaidHayasaka(discord.Client):
         # Anilist
         try:
             media = await type(sauce['title'], popularity=True, allow_adult=True)
-            if media.description is not None and sauce['source'][1] != "Ascii2d":
+            if media.description is not None and sauce['source'][1] != "Ascii2d" and sauce['source'][1] != "Iqdb" and sauce['source'][1] != "Iqdb3d":
                 anilist = True
-                thumbnail_anilist = f"{self.ANILIST_URL}{media.id}"
+                thumbnail_anilist = f"https://img.anili.st/media/{media.id}"
                 hex_color = media.cover_color or random.choice(
                     self.RANDOM_COLOR)
                 color_anilist = int(hex_color.lstrip('#'), 16)
@@ -78,7 +77,7 @@ class MaidHayasaka(discord.Client):
         if not sauce['another_titles']:
             desc += "**Unfortunately there is no other results**\n"
         else:
-            for x in range(3):
+            for x in range(6):
                 try:
                     desc += f"** • [{sauce['another_titles'][x][:150 - len(sauce['another_titles'][x])]} ...]({sauce['another_urls'][x]})**\n"
                 except:
@@ -91,7 +90,7 @@ class MaidHayasaka(discord.Client):
             e.set_image(url=thumbnail_anilist)
         else:
             try:
-                req = Request(sauce['thumbnail'], headers={
+                req = self.get(sauce['thumbnail'], headers={
                               'User-Agent': 'Mozilla/5.0'})
                 f = io.BytesIO(urlopen(req).read())
                 e = discord.Embed(title=sauce['title'], description=desc, color=int(('%02x%02x%02x' % ColorThief(f).get_color(quality=1)).lstrip('#'), 16))
@@ -117,9 +116,10 @@ class MaidHayasaka(discord.Client):
 
     async def search(self, name, message, video):
         temp = await message.channel.send(embed=self.wait(message))
-        if video or self.video.findall(name):
+        isVideo: bool = self.video.findall(name)
+        if video or isVideo:
             try:
-                sauce = await self.sauce.sauce_anime(name=name)
+                sauce = await self.sauce.sauce_anime(name=name, isVideo=isVideo)
                 embed = await self.format_embed(sauce, type=self.kadal.search_anime, message=message, original=name)
                 await temp.delete()
                 if self.video.findall(name):
@@ -168,5 +168,5 @@ class MaidHayasaka(discord.Client):
 
 
 maid = MaidHayasaka()
-token = os.environ.get('BOT_TOKEN')
+token = os.environ.get('BOT_TOKEN') or open("BOT_TOKEN").readline()
 maid.run(token)

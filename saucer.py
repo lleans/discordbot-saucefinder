@@ -1,65 +1,102 @@
+from fileinput import close
 import os
-import random
+import ffmpeg
 import asyncio
 import PicImageSearch
-
 
 class Sauce:
     def __init__(self):
         super().__init__()
-        self.client = PicImageSearch.Search()
+        self.ascii2d = PicImageSearch.Ascii2D()
+        self.baidu = PicImageSearch.BaiDu()
+        self.ehentai = PicImageSearch.EHentai()
+        self.google = PicImageSearch.Google()
+        self.iqdb = PicImageSearch.Iqdb()
+        self.saucenao = PicImageSearch.SauceNAO(os.environ.get('SAUCENAO_TOKEN') or open("SAUCENAO_TOKEN").readline())
+        self.tracemoe = PicImageSearch.TraceMoe()
 
-    async def sauce_anime(self, name):
+    @staticmethod
+    async def image_exporter(url: str, name: str):
+        proc = (
+        ffmpeg
+        .input(url, ss=0)
+        .output(name, vframes=1)
+        .overwrite_output()
+        .run_async(quiet=True)
+        )
+        proc.wait()
+
+    async def sauce_anime(self, name, isVideo: bool):
         async with asyncio.Semaphore(4):
-            tMoetask = await self.client.tracemoe(url=name)
             try:
+                if(isVideo):
+                    id: str = str(abs(hash(name)) % (10 ** 8)) + ".png"
+                    await self.image_exporter(name, id)
+                    tMoetask = await self.tracemoe.search(url=id)
+                else:
+                    tMoetask = await self.tracemoe.search(url=name)
+
                 tMoe = tMoetask.raw
             except:
                 raise Exception("Source TraceMoe Down")
+
             similiar = tMoe[0].similarity
-            res = {
-                'title': tMoe[0].title_english or tMoe[0].title,
-                'similiar': similiar,
-                'source': ["https://i.imgur.com/aXJEPmD.png", "TraceMoe"],
-                'thumbnail': tMoe[0].thumbnail,
-                'url': tMoe[0].video_thumbnail,
-                'another_titles': list(),
-                'another_urls': list()
-            }
-            for x in range(1, len(tMoe)):
-                try:
-                    res['another_titles'].append(tMoe[x].title)
-                    res['another_urls'].append(tMoe[x].video_thumbnail)
-                except:
-                    continue
+            if(similiar >= 80):
+                res = {
+                    'title': tMoe[0].title_english or tMoe[0].title,
+                    'similiar': similiar,
+                    'source': ["https://i.imgur.com/aXJEPmD.png", "TraceMoe"],
+                    'thumbnail': tMoe[0].image,
+                    'url': tMoe[0].video,
+                    'another_titles': list(),
+                    'another_urls': list()
+                }
+                for x in range(1, len(tMoe)):
+                    try:
+                        res['another_titles'].append(tMoe[x].title_romaji or tMoe[x].title_native)
+                        res['another_urls'].append(tMoe[x].video)
+                    except:
+                        continue
+            else:
+                raise Exception("Source not found")
             return res
 
     async def sauce_image(self, name):
         # Request
         async with asyncio.Semaphore(4):
-            Googletask, sNaotask, A2dtask, Iqtask, Iq3dtask = await asyncio.gather(self.client.google(url=name), self.client.saucenao(url=name, api_key=os.environ.get('SAUCENAO_TOKEN')), self.client.ascii2d(url=name), self.client.iqdb(url=name), self.client.iqdb_3d(url=name))
-
             try:
-                A2d = A2dtask.raw
+                GoogleTask, sNaoTask, A2dTask, IqTask, Iq3dTask, EhentaiTask = await asyncio.gather(
+                    self.google.search(url=name), 
+                    self.saucenao.search(url=name), 
+                    self.ascii2d.search(url=name), 
+                    self.iqdb.search(url=name, ), 
+                    self.iqdb.search(url=name, is_3d=True),
+                    self.ehentai.search(url=name),
+                    return_exceptions=True)
+            except Exception as e:
+                raise e
+            
+            try:
+                A2d = A2dTask.raw
                 A2ddata = True
             except:
                 A2ddata = None
 
             try:
-                Iq = Iqtask.raw
+                Iq = IqTask.raw
                 Iqsimilar = Iq[0].similarity
             except:
                 Iqsimilar = float(0)
 
             try:
-                Iq3d = Iq3dtask.raw
+                Iq3d = Iq3dTask.raw
                 Iq3dsimilar = Iq3d[0].similarity
             except:
                 Iq3dsimilar = float(0)
 
             try:
-                Google = Googletask.raw
-                if Google[2].thumbnail == "" or  Google[2].title == "Description" or Google[2].title == "Description":
+                Google = GoogleTask.raw
+                if Google[2].thumbnail == "" or "description" in Google[2].title.lower():
                     Googledata = None
                 else:
                     Googledata = True
@@ -67,17 +104,24 @@ class Sauce:
                 Googledata = None
 
             try:
-                sNao = sNaotask.raw
+                sNao = sNaoTask.raw
                 sNaosimilar = sNao[0].similarity
             except:
                 sNaosimilar = float(0)
+
+            try: 
+                Ehen = EhentaiTask.raw
+                Ehendata = True
+            except: 
+                Ehendata = False
+
             
             if sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Googledata:
                 # Google
                 res = {
                     'title': Google[2].title,
                     'thumbnail': Google[2].thumbnail,
-                    'similiar': float(random.choice(range(90, 100))),
+                    'similiar': None,
                     'source': ["https://i.imgur.com/Z9OLjXS.png", "Google"],
                     'url': Google[2].url,
                     'another_titles': list(),
@@ -85,13 +129,35 @@ class Sauce:
                 }
                 for x in range(3, len(Google)):
                     try:
-                        res['another_titles'].append(Google[x].title)
+                        if "description" in Google[2].title.lower():
+                            continue
+                        else:
+                            res['another_titles'].append(Google[x].title) 
                         res['another_urls'].append(Google[x].url)
                     except:
                         continue
                 return res
 
-            elif sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Googledata == None and A2ddata == True:
+            elif sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Googledata == None and A2ddata == False and Ehendata == True:
+                # Ehentai
+                res = {
+                    'title': Ehen[0].title,
+                    'thumbnail': Ehen[0].thumbnail,
+                    'similiar': None,
+                    'source': ["https://i.imgur.com/IXSFiax.png", "Ehentai"],
+                    'url': Ehen[0].url,
+                    'another_titles': list(),
+                    'another_urls': list()
+                }
+                for x in range(1, len(Ehen)):
+                    try:
+                        res['another_titles'].append(Ehen[x].title)
+                        res['another_urls'].append(Ehen[x].url)
+                    except:
+                        continue
+                return res
+
+            elif sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Googledata == None and A2ddata == True and Ehendata == False:
                 # Ascii2d
                 res = {
                     'title': A2d[1].title,
@@ -132,7 +198,7 @@ class Sauce:
             elif Iqsimilar >= sNaosimilar and Iqsimilar >= Iq3dsimilar:
                 # Iqdb
                 res = {
-                    'title': Iq[0].title[:180 - len(Iq[0].title)] + "...",
+                    'title': Iq[0].content[:180 - len(Iq[0].content)] + " ...",
                     'thumbnail': Iq[0].thumbnail,
                     'similiar': Iqsimilar,
                     'source': ["https://i.imgur.com/r3kJwPF.png", "Iqdb"],
@@ -143,7 +209,7 @@ class Sauce:
                 for x in range(1, len(Iq)):
                     try:
                         res['another_titles'].append(
-                            Iq[x].title[:180 - len(Iq[0].title)] + "...")
+                            Iq[x].content[:180 - len(Iq[0].content)] + " ...")
                         res['another_urls'].append(Iq[x].url)
                     except:
                         continue
@@ -152,7 +218,7 @@ class Sauce:
             elif Iq3dsimilar >= sNaosimilar and Iq3dsimilar >= Iqsimilar:
                 # Iqdb 3D
                 res = {
-                    'title': Iq3d[0].title[:180 - len(Iq3d[0].title)] + "...",
+                    'title': Iq3d[0].content[:180 - len(Iq3d[0].content)] + " ...",
                     'thumbnail': Iq3d[0].thumbnail,
                     'similiar': Iq3dsimilar,
                     'source': ["https://i.imgur.com/r3kJwPF.png", "Iqdb 3D"],
@@ -163,7 +229,7 @@ class Sauce:
                 for x in range(1, len(Iq3d)):
                     try:
                         res['another_titles'].append(
-                            Iq3d[x].title[:180 - len(Iq3d[0].title)] + "...")
+                            Iq3d[x].content[:180 - len(Iq3d[0].content)] + " ...")
                         res['another_urls'].append(Iq3d[x].url)
                     except:
                         continue
