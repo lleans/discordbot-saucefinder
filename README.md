@@ -19,3 +19,9 @@ Make sure you make Environment Variable or File with name:
 
 ## Some screenshot 🎏 
 <code><img width=800 src="https://i.imgur.com/7E9KBsz.png"></code>
+
+## Used Library 📚 
+ - PicImageSearch (Reverse image scrapper) 🖼
+ - Discord.py (Disord API python wrapper) 🐍
+ - ColorThief (Color Picker from image) 🎨
+ - Kadal (AsyncWrapper for Anilist) 🎡

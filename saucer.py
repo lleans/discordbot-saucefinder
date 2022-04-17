@@ -1,8 +1,9 @@
-from fileinput import close
 import os
 import ffmpeg
 import asyncio
 import PicImageSearch
+
+from re import search
 
 class Sauce:
     def __init__(self):
@@ -96,7 +97,7 @@ class Sauce:
 
             try:
                 Google = GoogleTask.raw
-                if Google[2].thumbnail == "" or "description" in Google[2].title.lower():
+                if Google[2].thumbnail == "" or search("description", Google[2].title):
                     Googledata = None
                 else:
                     Googledata = True
@@ -129,7 +130,7 @@ class Sauce:
                 }
                 for x in range(3, len(Google)):
                     try:
-                        if "description" in Google[2].title.lower():
+                        if search("description", Google[2].title):
                             continue
                         else:
                             res['another_titles'].append(Google[x].title) 
@@ -138,7 +139,7 @@ class Sauce:
                         continue
                 return res
 
-            elif sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Googledata == None and A2ddata == False and Ehendata == True:
+            elif sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Ehendata == True and A2ddata == None:
                 # Ehentai
                 res = {
                     'title': Ehen[0].title,
@@ -157,7 +158,7 @@ class Sauce:
                         continue
                 return res
 
-            elif sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Googledata == None and A2ddata == True and Ehendata == False:
+            elif sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and A2ddata == True and Ehendata == None:
                 # Ascii2d
                 res = {
                     'title': A2d[1].title,
@@ -234,7 +235,7 @@ class Sauce:
                     except:
                         continue
                 return res
-            elif Iq3dsimilar == 0.0 and Iqsimilar == 0.0 and sNaosimilar == 0.0 and A2ddata is None and Googledata is None:
+            elif Iq3dsimilar == 0.0 and Iqsimilar == 0.0 and sNaosimilar == 0.0 and A2ddata is None and Googledata is None and Ehendata is None:
                 raise Exception("All source down")
             else:
                 raise Exception("Source not found")
