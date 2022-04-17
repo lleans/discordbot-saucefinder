@@ -7,7 +7,7 @@ import random
 import traceback
 import saucer
 
-from urllib.request import urlopen
+from urllib.request import urlopen, Request
 from colorthief import ColorThief
 
 
@@ -90,7 +90,7 @@ class MaidHayasaka(discord.Client):
             e.set_image(url=thumbnail_anilist)
         else:
             try:
-                req = self.get(sauce['thumbnail'], headers={
+                req = Request(sauce['thumbnail'], headers={
                               'User-Agent': 'Mozilla/5.0'})
                 f = io.BytesIO(urlopen(req).read())
                 e = discord.Embed(title=sauce['title'], description=desc, color=int(('%02x%02x%02x' % ColorThief(f).get_color(quality=1)).lstrip('#'), 16))
