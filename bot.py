@@ -77,9 +77,9 @@ class MaidHayasaka(discord.Client):
         if not sauce['another_titles']:
             desc += "**Unfortunately there is no other results**\n"
         else:
-            for x in range(6):
+            for x in range(4):
                 try:
-                    desc += f"** • [{sauce['another_titles'][x][:150 - len(sauce['another_titles'][x])]} ...]({sauce['another_urls'][x]})**\n"
+                    desc += f"** • [{sauce['another_titles'][x][:150 - len(sauce['another_titles'][x])]}...]({sauce['another_urls'][x]})**\n"
                 except:
                     continue
 

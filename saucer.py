@@ -198,7 +198,7 @@ class Sauce:
             elif Iqsimilar >= sNaosimilar and Iqsimilar >= Iq3dsimilar:
                 # Iqdb
                 res = {
-                    'title': Iq[0].content[:180 - len(Iq[0].content)] + " ...",
+                    'title': Iq[0].content[:180 - len(Iq[0].content)],
                     'thumbnail': Iq[0].thumbnail,
                     'similiar': Iqsimilar,
                     'source': ["https://i.imgur.com/r3kJwPF.png", "Iqdb"],
@@ -209,7 +209,7 @@ class Sauce:
                 for x in range(1, len(Iq)):
                     try:
                         res['another_titles'].append(
-                            Iq[x].content[:180 - len(Iq[0].content)] + " ...")
+                            Iq[x].content[:180 - len(Iq[0].content)])
                         res['another_urls'].append(Iq[x].url)
                     except:
                         continue
@@ -218,7 +218,7 @@ class Sauce:
             elif Iq3dsimilar >= sNaosimilar and Iq3dsimilar >= Iqsimilar:
                 # Iqdb 3D
                 res = {
-                    'title': Iq3d[0].content[:180 - len(Iq3d[0].content)] + " ...",
+                    'title': Iq3d[0].content[:180 - len(Iq3d[0].content)],
                     'thumbnail': Iq3d[0].thumbnail,
                     'similiar': Iq3dsimilar,
                     'source': ["https://i.imgur.com/r3kJwPF.png", "Iqdb 3D"],
@@ -229,7 +229,7 @@ class Sauce:
                 for x in range(1, len(Iq3d)):
                     try:
                         res['another_titles'].append(
-                            Iq3d[x].content[:180 - len(Iq3d[0].content)] + " ...")
+                            Iq3d[x].content[:180 - len(Iq3d[0].content)])
                         res['another_urls'].append(Iq3d[x].url)
                     except:
                         continue
