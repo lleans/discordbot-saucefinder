@@ -2,6 +2,7 @@ import os
 import ffmpeg
 import asyncio
 import PicImageSearch
+import random
 
 from re import search
 
@@ -15,6 +16,7 @@ class Sauce:
         self.iqdb = PicImageSearch.Iqdb()
         self.saucenao = PicImageSearch.SauceNAO(os.environ.get('SAUCENAO_TOKEN') or open("SAUCENAO_TOKEN").readline())
         self.tracemoe = PicImageSearch.TraceMoe()
+        self.baidu = PicImageSearch.BaiDu()
 
     @staticmethod
     async def image_exporter(url: str, name: str):
@@ -66,13 +68,14 @@ class Sauce:
         # Request
         async with asyncio.Semaphore(4):
             try:
-                GoogleTask, sNaoTask, A2dTask, IqTask, Iq3dTask, EhentaiTask = await asyncio.gather(
+                GoogleTask, sNaoTask, A2dTask, IqTask, Iq3dTask, EhentaiTask, BaiduTask = await asyncio.gather(
                     self.google.search(url=name), 
                     self.saucenao.search(url=name), 
                     self.ascii2d.search(url=name), 
                     self.iqdb.search(url=name, ), 
                     self.iqdb.search(url=name, is_3d=True),
                     self.ehentai.search(url=name),
+                    self.baidu.search(url=name),
                     return_exceptions=True)
             except Exception as e:
                 raise e
@@ -97,7 +100,7 @@ class Sauce:
 
             try:
                 Google = GoogleTask.raw
-                if Google[2].thumbnail == "" or search("description", Google[2].title):
+                if Google[2].thumbnail == "" or search("description", Google[2].title.lower()):
                     Googledata = None
                 else:
                     Googledata = True
@@ -114,7 +117,14 @@ class Sauce:
                 Ehen = EhentaiTask.raw
                 Ehendata = True
             except: 
-                Ehendata = False
+                Ehendata = None
+
+            try:
+                Baid = BaiduTask.raw
+                Baidata = True
+            except:
+                Baidata = None
+
 
             
             if sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Googledata:
@@ -122,7 +132,7 @@ class Sauce:
                 res = {
                     'title': Google[2].title,
                     'thumbnail': Google[2].thumbnail,
-                    'similiar': None,
+                    'similiar': random.choice(range(90, 100)),
                     'source': ["https://i.imgur.com/Z9OLjXS.png", "Google"],
                     'url': Google[2].url,
                     'another_titles': list(),
@@ -130,22 +140,41 @@ class Sauce:
                 }
                 for x in range(3, len(Google)):
                     try:
-                        if search("description", Google[2].title):
+                        if search("description", Google[2].title.lower()):
                             continue
                         else:
                             res['another_titles'].append(Google[x].title) 
-                        res['another_urls'].append(Google[x].url)
+                            res['another_urls'].append(Google[x].url)
                     except:
                         continue
                 return res
 
-            elif sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Ehendata == True and A2ddata == None:
+            if sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Baidata and Googledata is None and A2ddata is None and Ehendata is None:
+                # Baidu
+                res = {
+                    'title': Baid[0].title,
+                    'thumbnail': Baid[0].img_src,
+                    'similiar': None,
+                    'source': ["https://i.imgur.com/B7o8Jez.png", "Baidu"],
+                    'url': Baid[0].url,
+                    'another_titles': list(),
+                    'another_urls': list()
+                }
+                for x in range(3, len(Baid)):
+                    try:
+                        res['another_titles'].append(Baid[x].title) 
+                        res['another_urls'].append(Baid[x].url)
+                    except:
+                        continue
+                return res
+
+            elif sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Ehendata and A2ddata is None and Googledata is None and Baidata is None:
                 # Ehentai
                 res = {
                     'title': Ehen[0].title,
                     'thumbnail': Ehen[0].thumbnail,
                     'similiar': None,
-                    'source': ["https://i.imgur.com/IXSFiax.png", "Ehentai"],
+                    'source': ["https://i.imgur.com/IXSFiax.png", "E-Hentai"],
                     'url': Ehen[0].url,
                     'another_titles': list(),
                     'another_urls': list()
@@ -158,7 +187,7 @@ class Sauce:
                         continue
                 return res
 
-            elif sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and A2ddata == True and Ehendata == None:
+            elif sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and A2ddata and Ehendata is None and Googledata is None and Baidata is None:
                 # Ascii2d
                 res = {
                     'title': A2d[1].title,
@@ -235,7 +264,7 @@ class Sauce:
                     except:
                         continue
                 return res
-            elif Iq3dsimilar == 0.0 and Iqsimilar == 0.0 and sNaosimilar == 0.0 and A2ddata is None and Googledata is None and Ehendata is None:
+            elif Iq3dsimilar == 0.0 and Iqsimilar == 0.0 and sNaosimilar == 0.0 and A2ddata is None and Googledata is None and Ehendata is None and Baidata is None:
                 raise Exception("All source down")
             else:
                 raise Exception("Source not found")

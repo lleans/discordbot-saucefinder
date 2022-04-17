@@ -15,7 +15,8 @@ Make sure you make Environment Variable or File with name:
 - Iqdb 🚚
 - Iqdb3d 🗃️
 - TraceMoe 🍱 
-- EHenta* 🕵️‍♀️
+- E-Henta* 🐼
+- Baidu 🐾
 
 ## Some screenshot 🎏 
 <code><img width=800 src="https://i.imgur.com/7E9KBsz.png"></code>

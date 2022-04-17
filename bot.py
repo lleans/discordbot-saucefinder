@@ -38,7 +38,7 @@ class MaidHayasaka(discord.Client):
     @staticmethod
     def error(message, error):
         e = discord.Embed(title="404 not found......" if Exception("Source not found") else "Whoopsss.....", description="Looks like i couldn't find the sauce, maybe god doesn't like it\n\n**What should i do ?**\nYou can use these website to reverse image manually\n" if Exception("Source not found") else "Looks like the source is down, maybe god doesn't like it\n\n**What should i do ?**\nYou can use these website to reverse image manually\n", color=discord.Color.from_rgb(255, 96, 56)).set_thumbnail(url="https://i.imgur.com/foNFxKu.gif").add_field(name='Multi Service', value=f"[Iqdb]({'https://iqdb.org/'})\n[ImgOps]({'https://imgops.com/'})").add_field(
-            name='Manga, anime & art', value=f"[SauceNao]({'https://saucenao.com/'})\n[Ascii2D]({'https://ascii2d.net/'})\n[TraceMoe]({'https://trace.moe/'})").add_field(name='Everything', value=f"[Google Images]({'https://images.google.com/'})\n[TinEye]({'https://tineye.com/'})\n[Yandex]({'https://yandex.com/images/'})").set_author(name=maid.user.name, icon_url=maid.user.avatar_url).set_footer(text=f"© {maid.user.name} | {message.created_at.strftime('%x')} | {error}")
+            name='Manga, anime & art', value=f"[SauceNao]({'https://saucenao.com/'})\n[Ascii2D]({'https://ascii2d.net/'})\n[TraceMoe]({'https://trace.moe/'})\n[E-Hentai]({'https://e-hentai.org/?f_shash=nofile&fs_from='})").add_field(name='Everything', value=f"[Google Images]({'https://images.google.com/'})\n[TinEye]({'https://tineye.com/'})\n[Yandex]({'https://yandex.com/images/'})\n[Baidu]({'https://image.baidu.com/'})").set_author(name=maid.user.name, icon_url=maid.user.avatar_url).set_footer(text=f"© {maid.user.name} | {message.created_at.strftime('%x')} | {error}")
         return e
 
     @staticmethod
@@ -58,7 +58,7 @@ class MaidHayasaka(discord.Client):
         # Anilist
         try:
             media = await type(sauce['title'], popularity=True, allow_adult=True)
-            if media.description is not None and sauce['source'][1] != "Ascii2d" and sauce['source'][1] != "Iqdb" and sauce['source'][1] != "Iqdb3d":
+            if media.description is not None and sauce['source'][1] != "Ascii2d" and sauce['source'][1] != "Iqdb" and sauce['source'][1] != "Iqdb3d" and sauce['source'][1] != "Baidu" and sauce['source'][1] != "E-Hentai":
                 anilist = True
                 thumbnail_anilist = f"https://img.anili.st/media/{media.id}"
                 hex_color = media.cover_color or random.choice(
