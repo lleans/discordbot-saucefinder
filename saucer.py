@@ -1,85 +1,104 @@
-import os
 import ffmpeg
-import asyncio
-import PicImageSearch
-import random
 
 from re import search
+from random import choice
+from os import environ, remove
+from asyncio import gather, Semaphore
+from PicImageSearch import Ascii2D, BaiDu, EHentai, Google, Iqdb, SauceNAO, TraceMoe
+
 
 class Sauce:
+
+    SOURCE_DICT = {
+        'SauceNao': "https://i.imgur.com/FhsgOiv.png",
+        'Google': "https://i.imgur.com/Z9OLjXS.png",
+        'TraceMoe': "https://i.imgur.com/aXJEPmD.png",
+        'Iqdb': "https://i.imgur.com/r3kJwPF.png",
+        'Ascii2D': "https://i.imgur.com/BA7hWTm.png",
+        'E-Hentai': "https://i.imgur.com/IXSFiax.png"
+    }
+
     def __init__(self):
         super().__init__()
-        self.ascii2d = PicImageSearch.Ascii2D()
-        self.baidu = PicImageSearch.BaiDu()
-        self.ehentai = PicImageSearch.EHentai()
-        self.google = PicImageSearch.Google()
-        self.iqdb = PicImageSearch.Iqdb()
-        self.saucenao = PicImageSearch.SauceNAO(os.environ.get('SAUCENAO_TOKEN') or open("SAUCENAO_TOKEN").readline())
-        self.tracemoe = PicImageSearch.TraceMoe()
-        self.baidu = PicImageSearch.BaiDu()
+        self.ascii2d = Ascii2D()
+        self.baidu = BaiDu()
+        self.ehentai = EHentai()
+        self.google = Google()
+        self.iqdb = Iqdb()
+        self.saucenao = SauceNAO(environ.get(
+            'SAUCENAO_TOKEN') or open("SAUCENAO_TOKEN").readline())
+        self.tracemoe = TraceMoe()
 
     @staticmethod
-    async def image_exporter(url: str, name: str):
+    def _value_assigment(title, url, thumbnail, similar, source, another_titles, another_urls):
+        return {
+            'title': title,
+            'url': url,
+            'thumbnail': thumbnail,
+            'similar': similar,
+            'source': source,
+            'another_titles': another_titles,
+            'another_urls': another_urls
+        }
+
+    @staticmethod
+    async def _image_exporter(url, uri):
         proc = (
-        ffmpeg
-        .input(url, ss=0)
-        .output(name, vframes=1)
-        .overwrite_output()
-        .run_async(quiet=True)
+            ffmpeg
+            .input(url, ss=1)
+            .output(uri, vframes=1)
+            .overwrite_output()
+            .run_async(quiet=True)
         )
         proc.wait()
 
-    async def sauce_anime(self, name, isVideo: bool):
-        async with asyncio.Semaphore(4):
+    async def sauce_anime(self, url, isVideo):
+        async with Semaphore(4):
             try:
                 if(isVideo):
-                    id: str = str(abs(hash(name)) % (10 ** 8)) + ".png"
-                    await self.image_exporter(name, id)
-                    tMoetask = await self.tracemoe.search(url=id)
+                    uri = f"{abs(hash(url)) % (10 ** 8)}.png"
+                    await self._image_exporter(url, uri)
+                    with open(uri, "rb") as img:
+                        tMoetask = await self.tracemoe.search(file=img)
+                        img.close()
+                        remove(uri)
                 else:
-                    tMoetask = await self.tracemoe.search(url=name)
+                    tMoetask = await self.tracemoe.search(url=url)
 
                 tMoe = tMoetask.raw
             except:
-                raise Exception("Source TraceMoe Down")
+                raise Exception("All source Down")
 
-            similiar = tMoe[0].similarity
-            if(similiar >= 80):
-                res = {
-                    'title': tMoe[0].title_english or tMoe[0].title,
-                    'similiar': similiar,
-                    'source': ["https://i.imgur.com/aXJEPmD.png", "TraceMoe"],
-                    'thumbnail': tMoe[0].image,
-                    'url': tMoe[0].video,
-                    'another_titles': list(),
-                    'another_urls': list()
-                }
-                for x in range(1, len(tMoe)):
+            similar = tMoe[0].similarity
+            if(similar >= 80):
+                another_titles = list()
+                another_urls = list()
+                for x in tMoe[1:]:
                     try:
-                        res['another_titles'].append(tMoe[x].title_romaji or tMoe[x].title_native)
-                        res['another_urls'].append(tMoe[x].video)
+                        another_titles.append(
+                            x.title_english or x.title_romaji)
+                        another_urls.append(x.video)
                     except:
                         continue
+                return self._value_assigment(tMoe[0].title_english or tMoe[0].title_romaji, tMoe[0].video, tMoe[0].image, similar, ["TraceMoe", self.SOURCE_DICT['TraceMoe']], another_titles, another_urls)
             else:
                 raise Exception("Source not found")
-            return res
 
-    async def sauce_image(self, name):
-        # Request
-        async with asyncio.Semaphore(4):
+    async def sauce_image(self, url):
+        async with Semaphore(4):
             try:
-                GoogleTask, sNaoTask, A2dTask, IqTask, Iq3dTask, EhentaiTask, BaiduTask = await asyncio.gather(
-                    self.google.search(url=name), 
-                    self.saucenao.search(url=name), 
-                    self.ascii2d.search(url=name), 
-                    self.iqdb.search(url=name, ), 
-                    self.iqdb.search(url=name, is_3d=True),
-                    self.ehentai.search(url=name),
-                    self.baidu.search(url=name),
+                GoogleTask, sNaoTask, A2dTask, IqTask, Iq3dTask, EhentaiTask, BaiduTask = await gather(
+                    self.google.search(url=url),
+                    self.saucenao.search(url=url),
+                    self.ascii2d.search(url=url),
+                    self.iqdb.search(url=url, ),
+                    self.iqdb.search(url=url, is_3d=True),
+                    self.ehentai.search(url=url),
+                    self.baidu.search(url=url),
                     return_exceptions=True)
             except Exception as e:
                 raise e
-            
+
             try:
                 A2d = A2dTask.raw
                 A2ddata = True
@@ -113,10 +132,10 @@ class Sauce:
             except:
                 sNaosimilar = float(0)
 
-            try: 
+            try:
                 Ehen = EhentaiTask.raw
                 Ehendata = True
-            except: 
+            except:
                 Ehendata = None
 
             try:
@@ -125,145 +144,83 @@ class Sauce:
             except:
                 Baidata = None
 
-
-            
             if sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Googledata:
-                # Google
-                res = {
-                    'title': Google[2].title,
-                    'thumbnail': Google[2].thumbnail,
-                    'similiar': random.choice(range(90, 100)),
-                    'source': ["https://i.imgur.com/Z9OLjXS.png", "Google"],
-                    'url': Google[2].url,
-                    'another_titles': list(),
-                    'another_urls': list()
-                }
-                for x in range(3, len(Google)):
+                another_titles = list()
+                another_urls = list()
+                for x in Google[3:]:
                     try:
-                        if search("description", Google[2].title.lower()):
-                            continue
-                        else:
-                            res['another_titles'].append(Google[x].title) 
-                            res['another_urls'].append(Google[x].url)
+                        another_titles.append(x.title)
+                        another_urls.append(x.url)
                     except:
                         continue
-                return res
+                return self._value_assigment(Google[2].title, Google[2].url, Google[2].thumbnail, choice(range(90, 100)), ["Google", self.SOURCE_DICT['Google']], another_titles, another_urls)
 
             if sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Baidata and Googledata is None and A2ddata is None and Ehendata is None:
-                # Baidu
-                res = {
-                    'title': Baid[0].title,
-                    'thumbnail': Baid[0].img_src,
-                    'similiar': None,
-                    'source': ["https://i.imgur.com/B7o8Jez.png", "Baidu"],
-                    'url': Baid[0].url,
-                    'another_titles': list(),
-                    'another_urls': list()
-                }
-                for x in range(3, len(Baid)):
+                another_titles = list()
+                another_urls = list()
+                for x in Baid[1:]:
                     try:
-                        res['another_titles'].append(Baid[x].title) 
-                        res['another_urls'].append(Baid[x].url)
+                        another_titles.append(x.title)
+                        another_urls.append(x.url)
                     except:
                         continue
-                return res
+                return self._value_assigment(Baid[0].title, Baid[0].url, Baid[0].img_src, None, ["Baidu", self.SOURCE_DICT['Baidu']], another_titles, another_urls)
 
             elif sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Ehendata and A2ddata is None and Googledata is None and Baidata is None:
-                # Ehentai
-                res = {
-                    'title': Ehen[0].title,
-                    'thumbnail': Ehen[0].thumbnail,
-                    'similiar': None,
-                    'source': ["https://i.imgur.com/IXSFiax.png", "E-Hentai"],
-                    'url': Ehen[0].url,
-                    'another_titles': list(),
-                    'another_urls': list()
-                }
-                for x in range(1, len(Ehen)):
+                another_titles = list()
+                another_urls = list()
+                for x in Ehen[1:]:
                     try:
-                        res['another_titles'].append(Ehen[x].title)
-                        res['another_urls'].append(Ehen[x].url)
+                        another_titles.append(x.title)
+                        another_urls.append(x.url)
                     except:
                         continue
-                return res
+                return self._value_assigment(Ehen[0].title, Ehen[0].url, Ehen[0].thumbnail, None, ["E-Hentai", self.SOURCE_DICT['E-Hentai']], another_titles, another_urls)
 
             elif sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and A2ddata and Ehendata is None and Googledata is None and Baidata is None:
-                # Ascii2d
-                res = {
-                    'title': A2d[1].title,
-                    'thumbnail': A2d[1].thumbnail,
-                    'similiar': None,
-                    'source': ["https://i.imgur.com/BA7hWTm.png", "Ascii2d"],
-                    'url': A2d[1].url,
-                    'another_titles': list(),
-                    'another_urls': list()
-                }
-                for x in range(2, len(A2d)):
+                another_titles = list()
+                another_urls = list()
+                for x in A2d[2:]:
                     try:
-                        res['another_titles'].append(A2d[x].title)
-                        res['another_urls'].append(A2d[x].url)
+                        another_titles.append(x.title)
+                        another_urls.append(x.url)
                     except:
                         continue
-                return res
+                return self._value_assigment(A2d[1].title, A2d[1].url, A2d[1].thumbnail, None, ["Ascii2D", self.SOURCE_DICT['Ascii2D']], another_titles, another_urls)
 
             elif sNaosimilar >= Iqsimilar and sNaosimilar >= Iq3dsimilar and sNaosimilar >= 80:
-                # SauceNao
-                res = {
-                    'title': sNao[0].title,
-                    'thumbnail': sNao[0].thumbnail,
-                    'similiar': sNaosimilar,
-                    'source': ["https://i.imgur.com/FhsgOiv.png", "SauceNao"],
-                    'url': sNao[0].url,
-                    'another_titles': list(),
-                    'another_urls': list()
-                }
-                for x in range(1, len(sNao)):
+                another_titles = list()
+                another_urls = list()
+                for x in sNao[1:]:
                     try:
-                        res['another_titles'].append(sNao[x].title)
-                        res['another_urls'].append(sNao[x].url)
+                        another_titles.append(x.title)
+                        another_urls.append(x.url)
                     except:
                         continue
-                return res
+                return self._value_assigment(sNao[0].title, sNao[0].url, sNao[0].thumbnail, sNaosimilar, ["SauceNao", self.SOURCE_DICT['SauceNao']], another_titles, another_urls)
 
             elif Iqsimilar >= sNaosimilar and Iqsimilar >= Iq3dsimilar:
-                # Iqdb
-                res = {
-                    'title': Iq[0].content[:180 - len(Iq[0].content)],
-                    'thumbnail': Iq[0].thumbnail,
-                    'similiar': Iqsimilar,
-                    'source': ["https://i.imgur.com/r3kJwPF.png", "Iqdb"],
-                    'url': Iq[0].url,
-                    'another_titles': list(),
-                    'another_urls': list()
-                }
-                for x in range(1, len(Iq)):
+                another_titles = list()
+                another_urls = list()
+                for x in Iq[1:]:
                     try:
-                        res['another_titles'].append(
-                            Iq[x].content[:180 - len(Iq[0].content)])
-                        res['another_urls'].append(Iq[x].url)
+                        another_titles.append(x.content[:180 - len(x.content)])
+                        another_urls.append(x.url)
                     except:
                         continue
-                return res
+                return self._value_assigment(Iq[0].content[:180 - len(Iq[0].content)], Iq[0].url, Iq[0].thumbnail, Iqsimilar, ["Iqdb", self.SOURCE_DICT['Iqdb']], another_titles, another_urls)
 
             elif Iq3dsimilar >= sNaosimilar and Iq3dsimilar >= Iqsimilar:
-                # Iqdb 3D
-                res = {
-                    'title': Iq3d[0].content[:180 - len(Iq3d[0].content)],
-                    'thumbnail': Iq3d[0].thumbnail,
-                    'similiar': Iq3dsimilar,
-                    'source': ["https://i.imgur.com/r3kJwPF.png", "Iqdb 3D"],
-                    'url': Iq3d[0].url,
-                    'another_titles': list(),
-                    'another_urls': list()
-                }
-                for x in range(1, len(Iq3d)):
+                another_titles = list()
+                another_urls = list()
+                for x in Iq3d[1:]:
                     try:
-                        res['another_titles'].append(
-                            Iq3d[x].content[:180 - len(Iq3d[0].content)])
-                        res['another_urls'].append(Iq3d[x].url)
+                        another_titles.append(x.content[:180 - len(x.content)])
+                        another_urls.append(x.url)
                     except:
                         continue
-                return res
+                return self._value_assigment(Iq3d[0].content[:180 - len(Iq3d[0].content)], Iq3d[0].url, Iq3d[0].thumbnail, Iq3dsimilar, ["Iqdb 3D", self.SOURCE_DICT['Iqdb']], another_titles, another_urls)
+
             elif Iq3dsimilar == 0.0 and Iqsimilar == 0.0 and sNaosimilar == 0.0 and A2ddata is None and Googledata is None and Ehendata is None and Baidata is None:
                 raise Exception("All source down")
             else:

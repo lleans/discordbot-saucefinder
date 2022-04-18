@@ -18,7 +18,7 @@ idna==3.3
 Kadal==0.2.6
 lxml==4.8.0
 multidict==6.0.2
-picimagesearch @ git+https://github.com/lleans/PicImageSearch.git@676772661e347b13bd6bf1dd98fde405ae9b3057
+picimagesearch @ git+https://github.com/lleans/PicImageSearch.git@3e340ced816d9c25b16e51ed3dceac4c2501605b
 Pillow==9.1.0
 py==1.11.0
 pyquery==1.4.3
