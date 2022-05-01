@@ -43,14 +43,12 @@ class Sauce:
 
     @staticmethod
     async def _image_exporter(url, uri):
-        proc = (
-            ffmpeg
-            .input(url, ss=1)
-            .output(uri, vframes=1)
-            .overwrite_output()
-            .run_async(quiet=True)
-        )
-        proc.wait()
+        return (ffmpeg
+         .input(url, ss=0)
+         .output(uri, vframes=1)
+         .overwrite_output()
+         .run_async(quiet=True)
+         ).communicate()
 
     async def sauce_anime(self, url, isVideo):
         async with Semaphore(4):
@@ -61,7 +59,6 @@ class Sauce:
                     with open(uri, "rb") as img:
                         tMoetask = await self.tracemoe.search(file=img)
                         img.close()
-                        remove(uri)
                 else:
                     tMoetask = await self.tracemoe.search(url=url)
 
@@ -80,8 +77,10 @@ class Sauce:
                         another_urls.append(x.video)
                     except:
                         continue
-                return self._value_assigment(tMoe[0].title_english or tMoe[0].title_romaji, tMoe[0].video, tMoe[0].image, similar, ["TraceMoe", self.SOURCE_DICT['TraceMoe']], another_titles, another_urls)
+                return self._value_assigment(tMoe[0].title_english or tMoe[0].title_romaji, tMoe[0].video, uri if isVideo else tMoe[0].image, similar, ["TraceMoe", self.SOURCE_DICT['TraceMoe']], another_titles, another_urls)
             else:
+                if isVideo:
+                    remove(uri)
                 raise Exception("Source not found")
 
     async def sauce_image(self, url):

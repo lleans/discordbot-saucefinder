@@ -2,10 +2,10 @@ import traceback
 
 from io import BytesIO
 from random import choice
-from os import environ
+from os import environ, remove as rm
 from re import compile, search, sub, IGNORECASE
 
-from discord import Client, Embed, Activity, ActivityType
+from discord import Client, Embed, Activity, ActivityType, File
 from urllib.request import urlopen, Request
 from colorthief import ColorThief
 from kadal import Klient
@@ -43,6 +43,8 @@ class MaidHayasaka(Client):
         }
         self.video = compile(
             r'(.*avi)|(.*m4v)|(.*mpeg)|(.*mpg)|(.*webm)|(.*mp4)')
+        self.image = compile(
+            r'(.*png)|(.*jpg)|(.*jpeg)|(.*webp)|(.*bmp)|(.*tiff)|(.*gif)')
 
         self.kadal = Klient()
         self.sauce = Sauce()
@@ -52,7 +54,7 @@ class MaidHayasaka(Client):
     def _help(message):
         e = Embed(
             title="Help Commands",
-            description="So this is my first time with you\nso please be gentle with me....\n\n\nAnyway here the command list",
+            description="So this is my first time with you\nso please be gentle with me....\n\n\n**Anyway here the command list**",
             color=int(MaidHayasaka.HAYASAKA_COLOR['accent'].lstrip('#'), 16)
         ).set_thumbnail(url=MaidHayasaka.HAYASAKA_THUMBNAIL['help']
                         ).add_field(
@@ -104,7 +106,7 @@ class MaidHayasaka(Client):
         ).set_footer(text=f"© {maid.user.name} | {message.created_at.strftime('%x')}")
         return e
 
-    async def format_embed(self, sauce, *, type, message, original):
+    async def format_embed(self, sauce, *, type, message, original, isVideo):
         anilist = False
         footer = f"© {maid.user.name} | {message.created_at.strftime('%x')}"
 
@@ -147,16 +149,20 @@ class MaidHayasaka(Client):
                     ('%02x%02x%02x' % ColorThief(f).get_color(quality=1)).lstrip('#'), 16))
                 e.set_image(url=sauce['thumbnail'])
             except:
+                e = Embed(title=sauce['title'], description=desc, color=int(
+                    choice(self.HAYASAKA_COLOR['random']).lstrip('#'), 16))
+
                 if sauce['thumbnail'].startswith('http'):
                     desc += f"\nLooks like the image doesn't show up, [click here]({sauce['thumbnail']}) to open it"
                 else:
                     desc += "\nLooks like there is no thumbnail for this, try click one of the results to open it"
-                e = Embed(title=sauce['title'], description=desc, color=int(
-                    choice(self.HAYASAKA_COLOR['random']).lstrip('#'), 16))
                 e.set_image(url=self.HAYASAKA_THUMBNAIL['img_not_found'])
                 footer += " | Image not found 404"
         e.url = sauce['url']
-        e.set_thumbnail(url=original)
+        if isVideo:
+            e.set_thumbnail(url="attachment://image.png")
+        else:
+            e.set_thumbnail(url=original)
         e.set_author(name=sauce['source'][0], icon_url=sauce['source'][1])
         e.set_footer(icon_url=message.author.avatar_url, text=footer)
         return e
@@ -164,20 +170,26 @@ class MaidHayasaka(Client):
     async def search(self, url, message, video):
         temp = await message.channel.send(embed=self._wait(message))
         isVideo = self.video.findall(url)
+        isImage = self.video.findall(url)
         try:
             if video or isVideo:
                 sauce = await self.sauce.sauce_anime(url=url, isVideo=isVideo)
-                embed = await self.format_embed(sauce, type=self.kadal.search_anime, message=message, original=url)
+                embed = await self.format_embed(sauce, type=self.kadal.search_anime, message=message, original=url, isVideo=isVideo)
                 await temp.delete()
                 if isVideo:
-                    await message.channel.send(url)
-                await message.channel.send(embed=embed)
+                    image_file = File(sauce['thumbnail'], filename='image.png')
+                    await message.channel.send(file=image_file, embed=embed)
+                    rm(sauce['thumbnail'])
+                else:
+                    await message.channel.send(embed=embed)
                 await message.channel.send(sauce['url'])
-            else:
+            elif isImage and not video:
                 sauce = await self.sauce.sauce_image(url=url)
-                embed = await self.format_embed(sauce, type=self.kadal.search_manga, message=message, original=url)
+                embed = await self.format_embed(sauce, type=self.kadal.search_manga, message=message, original=url, isVideo=isVideo)
                 await temp.delete()
                 await message.channel.send(embed=embed)
+            else:
+                await message.channel.send(embed=self._error(message, Exception("Image or Video format not supported !")))
         except Exception as catch:
             await temp.delete()
             traceback.print_exc()
@@ -198,8 +210,7 @@ class MaidHayasaka(Client):
     async def on_message(self, message):
         if message.author.id == self.user.id:
             return
-
-        if maid.user in message.mentions and message.clean_content == f"@{maid.user.name}":
+        elif maid.user in message.mentions and message.clean_content == f"@{maid.user.name}":
             await message.channel.send(embed=self._help(message))
 
         for type, regex in self.regex_command.items():
