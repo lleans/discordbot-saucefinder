@@ -169,8 +169,8 @@ class MaidHayasaka(Client):
 
     async def search(self, url, message, video):
         temp = await message.channel.send(embed=self._wait(message))
-        isVideo = self.video.findall(url)
-        isImage = self.video.findall(url)
+        isVideo = self.video.search(url)
+        isImage = self.image.search(url)
         try:
             if video or isVideo:
                 sauce = await self.sauce.sauce_anime(url=url, isVideo=isVideo)
@@ -183,12 +183,13 @@ class MaidHayasaka(Client):
                 else:
                     await message.channel.send(embed=embed)
                 await message.channel.send(sauce['url'])
-            elif isImage and not video:
+            elif isImage and not (video or isVideo):
                 sauce = await self.sauce.sauce_image(url=url)
                 embed = await self.format_embed(sauce, type=self.kadal.search_manga, message=message, original=url, isVideo=isVideo)
                 await temp.delete()
                 await message.channel.send(embed=embed)
             else:
+                await temp.delete()
                 await message.channel.send(embed=self._error(message, Exception("Image or Video format not supported !")))
         except Exception as catch:
             await temp.delete()
