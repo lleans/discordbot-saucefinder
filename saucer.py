@@ -133,7 +133,7 @@ class Sauce:
 
             try:
                 Ehen = EhentaiTask.raw
-                Ehendata = True
+                Ehendata = True if Ehen[0].title != "" else None
             except:
                 Ehendata = None
 
