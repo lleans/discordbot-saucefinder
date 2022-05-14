@@ -18,16 +18,16 @@ class Sauce:
         'E-Hentai': "https://i.imgur.com/IXSFiax.png"
     }
 
-    def __init__(self):
+    def __init__(self, client):
         super().__init__()
-        self.ascii2d = Ascii2D()
-        self.baidu = BaiDu()
-        self.ehentai = EHentai()
-        self.google = Google()
-        self.iqdb = Iqdb()
-        self.saucenao = SauceNAO(environ.get(
+        self.ascii2d = Ascii2D(client=client)
+        self.baidu = BaiDu(client=client)
+        self.ehentai = EHentai(client=client)
+        self.google = Google(client=client)
+        self.iqdb = Iqdb(client=client)
+        self.saucenao = SauceNAO(client=client, api_key=environ.get(
             'SAUCENAO_TOKEN') or open("SAUCENAO_TOKEN").readline())
-        self.tracemoe = TraceMoe()
+        self.tracemoe = TraceMoe(client=client)
 
     @staticmethod
     def _value_assigment(title, url, thumbnail, similar, source, another_titles, another_urls):

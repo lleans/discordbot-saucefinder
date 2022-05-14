@@ -6,6 +6,7 @@ from os import environ, remove as rm
 from re import compile, search, sub, IGNORECASE
 
 from discord import Client, Embed, Activity, ActivityType, File
+from PicImageSearch import Network
 from urllib.request import urlopen, Request
 from colorthief import ColorThief
 from kadal import Klient
@@ -45,9 +46,10 @@ class MaidHayasaka(Client):
             r'(.*avi)|(.*m4v)|(.*mpeg)|(.*mpg)|(.*webm)|(.*mp4)')
         self.image = compile(
             r'(.*png)|(.*jpg)|(.*jpeg)|(.*webp)|(.*bmp)|(.*tiff)|(.*gif)')
+        self.client = Network()
 
         self.kadal = Klient()
-        self.sauce = Sauce()
+        self.sauce = Sauce(client=self.client)
         print("start")
 
     @staticmethod
