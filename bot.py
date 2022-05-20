@@ -181,20 +181,20 @@ class MaidHayasaka(Client):
                     embed = await self.format_embed(sauce, type=self.kadal.search_anime, message=message, original=url, isVideo=isVideo)
                     if isVideo:
                         image_file = File(BytesIO(sauce['thumbnail']), filename='image.png')
-                        wait([temp.delete(), message.channel.send(file=image_file, embed=embed)])
+                        await wait([temp.delete(), message.channel.send(file=image_file, embed=embed)])
                     else:
-                        wait([temp.delete(), message.channel.send(embed=embed)])
+                        await wait([temp.delete(), message.channel.send(embed=embed)])
                     await message.channel.send(sauce['url'])
             elif isImage and not (video or isVideo):
                 sauce = await self.sauce.sauce_image(url=url)
                 async with message.channel.typing():
                     embed = await self.format_embed(sauce, type=self.kadal.search_manga, message=message, original=url, isVideo=isVideo)
-                    wait([temp.delete(), message.channel.send(embed=embed)])
+                    await wait([temp.delete(), message.channel.send(embed=embed)])
             else:
                 async with message.channel.typing():
-                    wait([temp.delete(), message.channel.send(embed=self._error(message, Exception("Image or Video format not supported !")))])
+                    await wait([temp.delete(), message.channel.send(embed=self._error(message, Exception("Image or Video format not supported !")))])
         except Exception as catch:
-            wait([temp.delete(), message.channel.send(embed=self._error(message, catch))])
+            await wait([temp.delete(), message.channel.send(embed=self._error(message, catch))])
             traceback.print_exc()
 
     async def filter(self, message, regex, method):
