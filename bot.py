@@ -2,7 +2,8 @@ import traceback
 
 from io import BytesIO
 from random import choice
-from os import environ, remove as rm
+from asyncio import wait
+from os import environ
 from re import compile, search, sub, IGNORECASE
 
 from discord import Client, Embed, Activity, ActivityType, File
@@ -176,27 +177,25 @@ class MaidHayasaka(Client):
         try:
             if video or isVideo:
                 sauce = await self.sauce.sauce_anime(url=url, isVideo=isVideo)
-                embed = await self.format_embed(sauce, type=self.kadal.search_anime, message=message, original=url, isVideo=isVideo)
-                await temp.delete()
-                if isVideo:
-                    image_file = File(sauce['thumbnail'], filename='image.png')
-                    await message.channel.send(file=image_file, embed=embed)
-                    rm(sauce['thumbnail'])
-                else:
-                    await message.channel.send(embed=embed)
-                await message.channel.send(sauce['url'])
+                async with message.channel.typing():
+                    embed = await self.format_embed(sauce, type=self.kadal.search_anime, message=message, original=url, isVideo=isVideo)
+                    if isVideo:
+                        image_file = File(BytesIO(sauce['thumbnail']), filename='image.png')
+                        wait([temp.delete(), message.channel.send(file=image_file, embed=embed)])
+                    else:
+                        wait([temp.delete(), message.channel.send(embed=embed)])
+                    await message.channel.send(sauce['url'])
             elif isImage and not (video or isVideo):
                 sauce = await self.sauce.sauce_image(url=url)
-                embed = await self.format_embed(sauce, type=self.kadal.search_manga, message=message, original=url, isVideo=isVideo)
-                await temp.delete()
-                await message.channel.send(embed=embed)
+                async with message.channel.typing():
+                    embed = await self.format_embed(sauce, type=self.kadal.search_manga, message=message, original=url, isVideo=isVideo)
+                    wait([temp.delete(), message.channel.send(embed=embed)])
             else:
-                await temp.delete()
-                await message.channel.send(embed=self._error(message, Exception("Image or Video format not supported !")))
+                async with message.channel.typing():
+                    wait([temp.delete(), message.channel.send(embed=self._error(message, Exception("Image or Video format not supported !")))])
         except Exception as catch:
-            await temp.delete()
+            wait([temp.delete(), message.channel.send(embed=self._error(message, catch))])
             traceback.print_exc()
-            await message.channel.send(embed=self._error(message, catch))
 
     async def filter(self, message, regex, method):
         m = regex.findall(message.clean_content)
