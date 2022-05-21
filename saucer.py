@@ -78,142 +78,133 @@ class Sauce:
 
     async def sauce_image(self, url):
         async with Semaphore(4):
+            GoogleTask = sNaoTask = A2dTask = IqTask = Iq3dTask = EhentaiTask = BaiduTask = None
+            task = [
+                self.google.search(url=url),
+                self.saucenao.search(url=url),
+                self.ascii2d.search(url=url),
+                self.iqdb.search(url=url, ),
+                self.iqdb.search(url=url, is_3d=True),
+                self.ehentai.search(url=url),
+                self.baidu.search(url=url)
+                ]
+            GoogleTask, sNaoTask, A2dTask, IqTask, Iq3dTask, EhentaiTask, BaiduTask = await gather(
+                *task,
+                return_exceptions=True)
+            
             try:
-                GoogleTask, sNaoTask, A2dTask, IqTask, Iq3dTask, EhentaiTask, BaiduTask = await gather(
-                    self.google.search(url=url),
-                    self.saucenao.search(url=url),
-                    self.ascii2d.search(url=url),
-                    self.iqdb.search(url=url, ),
-                    self.iqdb.search(url=url, is_3d=True),
-                    self.ehentai.search(url=url),
-                    self.baidu.search(url=url),
-                    return_exceptions=True)
-            except Exception as e:
-                raise e
-
-            try:
-                A2d = A2dTask.raw
-                A2ddata = True
+                isGoogleExist = (True, choice(range(90, 100))) if GoogleTask is not None and (GoogleTask.raw[2].thumbnail != "" or not search("description", GoogleTask.raw[2].title.lower())) else (False, 0)
             except:
-                A2ddata = None
+                isGoogleExist = (False, 0)
 
             try:
-                Iq = IqTask.raw
-                Iqsimilar = Iq[0].similarity
+                isSNaoExist =  (True, sNaoTask.raw[0].similarity) if sNaoTask is not None and sNaoTask.raw[0].title != "" else (False, 0)
             except:
-                Iqsimilar = float(0)
+                isSNaoExist = (False, 0)
 
             try:
-                Iq3d = Iq3dTask.raw
-                Iq3dsimilar = Iq3d[0].similarity
+                isA2DExist = (True, None) if A2dTask is not None and A2dTask.raw[1].title != "" else (False, 0)
             except:
-                Iq3dsimilar = float(0)
+                isA2DExist = (False, 0)
 
             try:
-                Google = GoogleTask.raw
-                if Google[2].thumbnail == "" or search("description", Google[2].title.lower()):
-                    Googledata = None
-                else:
-                    Googledata = True
+                isIqdbExist = (True, IqTask.raw[0].similarity) if IqTask is not None and IqTask.raw[0].title != "" else (False, 0)
             except:
-                Googledata = None
+                isIqdbExist = (False, 0)
 
             try:
-                sNao = sNaoTask.raw
-                sNaosimilar = sNao[0].similarity
+                isIqdb3DExist = (True, Iq3dTask.raw[0].similarity) if Iq3dTask is not None and Iq3dTask.raw[0].title != "" else (False, 0)
             except:
-                sNaosimilar = float(0)
+                isIqdb3DExist = (False, 0)
 
             try:
-                Ehen = EhentaiTask.raw
-                Ehendata = True if Ehen[0].title != "" else None
+                isEhenExist = (True, None) if EhentaiTask is not None and EhentaiTask.raw[0].title != "" else (False, 0)
             except:
-                Ehendata = None
+                isEhenExist = (False, 0)
 
             try:
-                Baid = BaiduTask.raw
-                Baidata = True
+                isBaiduExist = (True, None) if BaiduTask is not None and BaiduTask.raw[0].title != "" else(False, 0)
             except:
-                Baidata = None
+                isBaiduExist = (False, 0)
 
-            if sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Googledata:
+            if isGoogleExist[0] and isSNaoExist[1] <= 80 and isIqdbExist[1] <= 80 and isIqdb3DExist[1] <= 80:
                 another_titles = list()
                 another_urls = list()
-                for x in Google[3:]:
+                for x in GoogleTask.raw[3:]:
                     try:
                         another_titles.append(x.title)
                         another_urls.append(x.url)
                     except:
                         continue
-                return self._value_assigment(Google[2].title, Google[2].url, Google[2].thumbnail, choice(range(90, 100)), ["Google", self.SOURCE_DICT['Google']], another_titles, another_urls)
+                return self._value_assigment(GoogleTask.raw[2].title, GoogleTask.raw[2].url, GoogleTask.raw[2].thumbnail, isGoogleExist[1], ["Google", self.SOURCE_DICT['Google']], another_titles, another_urls)
 
-            if sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Baidata and Googledata is None and A2ddata is None and Ehendata is None:
+            if isBaiduExist[0] and isSNaoExist[1] <= 80 and isIqdbExist[1] <= 80 and isIqdb3DExist[1] <= 80 and not isGoogleExist[0] and not isA2DExist[0] and not isEhenExist[0]:
                 another_titles = list()
                 another_urls = list()
-                for x in Baid[1:]:
+                for x in BaiduTask.raw[1:]:
                     try:
                         another_titles.append(x.title)
                         another_urls.append(x.url)
                     except:
                         continue
-                return self._value_assigment(Baid[0].title, Baid[0].url, Baid[0].img_src, None, ["Baidu", self.SOURCE_DICT['Baidu']], another_titles, another_urls)
+                return self._value_assigment(BaiduTask.raw[0].title, BaiduTask.raw[0].url, BaiduTask.raw[0].img_src, isBaiduExist[1], ["Baidu", self.SOURCE_DICT['Baidu']], another_titles, another_urls)
 
-            elif sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and Ehendata and A2ddata is None and Googledata is None and Baidata is None:
+            elif isEhenExist[0] and isSNaoExist[1] <= 80 and isIqdbExist[1] <= 80 and isIqdb3DExist[1] <= 80 and not isA2DExist[0] and not isGoogleExist[0] and not isBaiduExist:
                 another_titles = list()
                 another_urls = list()
-                for x in Ehen[1:]:
+                for x in EhentaiTask.raw[1:]:
                     try:
                         another_titles.append(x.title)
                         another_urls.append(x.url)
                     except:
                         continue
-                return self._value_assigment(Ehen[0].title, Ehen[0].url, Ehen[0].thumbnail, None, ["E-Hentai", self.SOURCE_DICT['E-Hentai']], another_titles, another_urls)
+                return self._value_assigment(EhentaiTask.raw[0].title, EhentaiTask.raw[0].url, EhentaiTask.raw[0].thumbnail, isEhenExist[1], ["E-Hentai", self.SOURCE_DICT['E-Hentai']], another_titles, another_urls)
 
-            elif sNaosimilar <= 80 and Iqsimilar <= 80 and Iq3dsimilar <= 80 and A2ddata and Ehendata is None and Googledata is None and Baidata is None:
+            elif isA2DExist[0] and isSNaoExist[1] <= 80 and isIqdbExist[1] <= 80 and isIqdb3DExist[1] <= 80 and not isEhenExist[0] and not isGoogleExist[0] and not isBaiduExist[0]:
                 another_titles = list()
                 another_urls = list()
-                for x in A2d[2:]:
+                for x in A2dTask.raw[2:]:
                     try:
                         another_titles.append(x.title)
                         another_urls.append(x.url)
                     except:
                         continue
-                return self._value_assigment(A2d[1].title, A2d[1].url, A2d[1].thumbnail, None, ["Ascii2D", self.SOURCE_DICT['Ascii2D']], another_titles, another_urls)
+                return self._value_assigment(A2dTask.raw[1].title, A2dTask.raw[1].url, A2dTask.raw[1].thumbnail, isA2DExist[1], ["Ascii2D", self.SOURCE_DICT['Ascii2D']], another_titles, another_urls)
 
-            elif sNaosimilar >= Iqsimilar and sNaosimilar >= Iq3dsimilar and sNaosimilar >= 80:
+            elif isSNaoExist[1] >= isIqdbExist[1] and isSNaoExist[1] >= isIqdb3DExist[1] and isSNaoExist[1] >= 80:
                 another_titles = list()
                 another_urls = list()
-                for x in sNao[1:]:
+                for x in sNaoTask.raw[1:]:
                     try:
                         another_titles.append(x.title)
                         another_urls.append(x.url)
                     except:
                         continue
-                return self._value_assigment(sNao[0].title, sNao[0].url, sNao[0].thumbnail, sNaosimilar, ["SauceNao", self.SOURCE_DICT['SauceNao']], another_titles, another_urls)
+                return self._value_assigment(sNaoTask.raw[0].title, sNaoTask.raw[0].url, sNaoTask.raw[0].thumbnail, isSNaoExist[1], ["SauceNao", self.SOURCE_DICT['SauceNao']], another_titles, another_urls)
 
-            elif Iqsimilar >= sNaosimilar and Iqsimilar >= Iq3dsimilar:
+            elif isIqdbExist[1] >= isSNaoExist[1] and isIqdbExist[1] >= isIqdb3DExist[1]:
                 another_titles = list()
                 another_urls = list()
-                for x in Iq[1:]:
+                for x in IqTask.raw[1:]:
                     try:
                         another_titles.append(x.content[:180 - len(x.content)])
                         another_urls.append(x.url)
                     except:
                         continue
-                return self._value_assigment(Iq[0].content[:180 - len(Iq[0].content)], Iq[0].url, Iq[0].thumbnail, Iqsimilar, ["Iqdb", self.SOURCE_DICT['Iqdb']], another_titles, another_urls)
+                return self._value_assigment(IqTask.raw[0].content[:180 - len(IqTask.raw[0].content)], IqTask.raw[0].url, IqTask.raw[0].thumbnail, isIqdbExist[1], ["Iqdb", self.SOURCE_DICT['Iqdb']], another_titles, another_urls)
 
-            elif Iq3dsimilar >= sNaosimilar and Iq3dsimilar >= Iqsimilar:
+            elif Iq3dTask[1] >= isSNaoExist[1] and isIqdb3DExist[1] >= isIqdbExist[1]:
                 another_titles = list()
                 another_urls = list()
-                for x in Iq3d[1:]:
+                for x in Iq3dTask.raw[1:]:
                     try:
                         another_titles.append(x.content[:180 - len(x.content)])
                         another_urls.append(x.url)
                     except:
                         continue
-                return self._value_assigment(Iq3d[0].content[:180 - len(Iq3d[0].content)], Iq3d[0].url, Iq3d[0].thumbnail, Iq3dsimilar, ["Iqdb 3D", self.SOURCE_DICT['Iqdb']], another_titles, another_urls)
+                return self._value_assigment(Iq3dTask.raw[0].content[:180 - len(Iq3dTask.raw[0].content)], Iq3dTask.raw[0].url, Iq3dTask.raw[0].thumbnail, isIqdb3DExist[1], ["Iqdb 3D", self.SOURCE_DICT['Iqdb']], another_titles, another_urls)
 
-            elif Iq3dsimilar == 0.0 and Iqsimilar == 0.0 and sNaosimilar == 0.0 and A2ddata is None and Googledata is None and Ehendata is None and Baidata is None:
+            elif not (isSNaoExist[0] and isIqdbExist[0] and isSNaoExist[0] and isA2DExist[0] and isGoogleExist[0] and isEhenExist[0] and isBaiduExist[0]):
                 raise Exception("All source down")
             else:
                 raise Exception("Source not found")
