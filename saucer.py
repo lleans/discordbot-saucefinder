@@ -4,7 +4,7 @@ from re import search
 from random import choice
 from os import environ
 from asyncio import gather, Semaphore
-from PicImageSearch import Ascii2D, BaiDu, EHentai, Google, Iqdb, SauceNAO, TraceMoe
+from PicImageSearch import Ascii2D, BaiDu, EHentai, Google, Iqdb, SauceNAO, TraceMoe, Network
 
 
 class Sauce:
@@ -18,8 +18,9 @@ class Sauce:
         'E-Hentai': "https://i.imgur.com/IXSFiax.png"
     }
 
-    def __init__(self, client):
+    def __init__(self):
         super().__init__()
+        client = Network()
         self.ascii2d = Ascii2D(client=client)
         self.baidu = BaiDu(client=client)
         self.ehentai = EHentai(client=client)
