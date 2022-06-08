@@ -138,8 +138,8 @@ class Sauce:
                     except:
                         continue
                 return self._value_assigment(GoogleTask.raw[2].title, GoogleTask.raw[2].url, GoogleTask.raw[2].thumbnail, isGoogleExist[1], ["Google", self.SOURCE_DICT['Google']], another_titles, another_urls)
-
-            if isBaiduExist[0] and isSNaoExist[1] <= 80 and isIqdbExist[1] <= 80 and isIqdb3DExist[1] <= 80 and not isGoogleExist[0] and not isA2DExist[0] and not isEhenExist[0]:
+                
+            elif isBaiduExist[0] and isSNaoExist[1] <= 80 and isIqdbExist[1] <= 80 and isIqdb3DExist[1] <= 80:
                 another_titles = list()
                 another_urls = list()
                 for x in BaiduTask.raw[1:]:
@@ -150,7 +150,7 @@ class Sauce:
                         continue
                 return self._value_assigment(BaiduTask.raw[0].title, BaiduTask.raw[0].url, BaiduTask.raw[0].img_src, isBaiduExist[1], ["Baidu", self.SOURCE_DICT['Baidu']], another_titles, another_urls)
 
-            elif isEhenExist[0] and isSNaoExist[1] <= 80 and isIqdbExist[1] <= 80 and isIqdb3DExist[1] <= 80 and not isA2DExist[0] and not isGoogleExist[0] and not isBaiduExist:
+            elif isEhenExist[0] and isSNaoExist[1] <= 80 and isIqdbExist[1] <= 80 and isIqdb3DExist[1] <= 80:
                 another_titles = list()
                 another_urls = list()
                 for x in EhentaiTask.raw[1:]:
@@ -161,7 +161,7 @@ class Sauce:
                         continue
                 return self._value_assigment(EhentaiTask.raw[0].title, EhentaiTask.raw[0].url, EhentaiTask.raw[0].thumbnail, isEhenExist[1], ["E-Hentai", self.SOURCE_DICT['E-Hentai']], another_titles, another_urls)
 
-            elif isA2DExist[0] and isSNaoExist[1] <= 80 and isIqdbExist[1] <= 80 and isIqdb3DExist[1] <= 80 and not isEhenExist[0] and not isGoogleExist[0] and not isBaiduExist[0]:
+            elif isA2DExist[0] and isSNaoExist[1] <= 80 and isIqdbExist[1] <= 80 and isIqdb3DExist[1] <= 80:
                 another_titles = list()
                 another_urls = list()
                 for x in A2dTask.raw[2:]:
@@ -194,7 +194,7 @@ class Sauce:
                         continue
                 return self._value_assigment(IqTask.raw[0].content[:180 - len(IqTask.raw[0].content)], IqTask.raw[0].url, IqTask.raw[0].thumbnail, isIqdbExist[1], ["Iqdb", self.SOURCE_DICT['Iqdb']], another_titles, another_urls)
 
-            elif Iq3dTask[1] >= isSNaoExist[1] and isIqdb3DExist[1] >= isIqdbExist[1]:
+            elif isIqdb3DExist[1] >= isSNaoExist[1] and isIqdb3DExist[1] >= isIqdbExist[1]:
                 another_titles = list()
                 another_urls = list()
                 for x in Iq3dTask.raw[1:]:

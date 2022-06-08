@@ -159,23 +159,22 @@ class MaidHayasaka(Client):
         e.set_footer(icon_url=message.author.avatar_url, text=footer)
         return e
 
-    async def search(self, url, message, video):
+    async def search(self, url, message, videoMethod):
         temp = await message.channel.send(embed=self._wait(message))
         isVideo = self.video.search(url)
         isImage = self.image.search(url)
         try:
-            if video or isVideo:
+            if videoMethod or isVideo and not isImage:
                 sauce = await self.sauce.sauce_anime(url=url, isVideo=isVideo)
                 async with message.channel.typing():
                     embed = await self.format_embed(sauce, type=self.kadal.search_anime, message=message, original=url, isVideo=isVideo)
                     if isVideo:
-                        if isinstance(sauce['thumbnail'], bytes):
-                            image_file = File(BytesIO(sauce['thumbnail']), filename='image.png')
+                        image_file = File(BytesIO(sauce['thumbnail']), filename='image.png')
                         await wait([ensure_future(temp.delete()), ensure_future(message.channel.send(file=image_file, embed=embed))])
                     else:
                         await wait([ensure_future(temp.delete()), ensure_future(message.channel.send(embed=embed))])
                     await message.channel.send(sauce['url'])
-            elif isImage and not (video or isVideo):
+            elif isImage and not (videoMethod or isVideo):
                 sauce = await self.sauce.sauce_image(url=url)
                 async with message.channel.typing():
                     embed = await self.format_embed(sauce, type=self.kadal.search_manga, message=message, original=url, isVideo=isVideo)
