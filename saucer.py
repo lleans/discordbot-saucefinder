@@ -206,6 +206,6 @@ class Sauce:
                 return self._value_assigment(Iq3dTask.raw[0].content[:180 - len(Iq3dTask.raw[0].content)], Iq3dTask.raw[0].url, Iq3dTask.raw[0].thumbnail, isIqdb3DExist[1], ["Iqdb 3D", self.SOURCE_DICT['Iqdb']], another_titles, another_urls)
 
             elif not (isSNaoExist[0] and isIqdbExist[0] and isSNaoExist[0] and isA2DExist[0] and isGoogleExist[0] and isEhenExist[0] and isBaiduExist[0]):
-                raise Exception("All source down")
-            else:
                 raise Exception("Source not found")
+            else:
+                raise Exception("All source down")

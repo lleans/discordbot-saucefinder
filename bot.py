@@ -43,7 +43,7 @@ class MaidHayasaka(Client):
             "video": compile(r',(.*?),')
         }
         self.video = compile(
-            r'(.*avi)|(.*m4v)|(.*mpeg)|(.*mpg)|(.*webm)|(.*mp4)')
+            r'(.*avi)|(.*m4v)|(.*mpeg)|(.*mpg)|(.*webm)|(.*mp4)|(.*mov)')
         self.image = compile(
             r'(.*png)|(.*jpg)|(.*jpeg)|(.*webp)|(.*bmp)|(.*tiff)|(.*gif)')
 
