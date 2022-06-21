@@ -1,6 +1,6 @@
 import ffmpeg
 
-from re import search
+from re import IGNORECASE, search
 from random import choice
 from os import environ
 from asyncio import gather, Semaphore
@@ -88,43 +88,50 @@ class Sauce:
                 self.iqdb.search(url=url, is_3d=True),
                 self.ehentai.search(url=url),
                 self.baidu.search(url=url)
-                ]
+            ]
             GoogleTask, sNaoTask, A2dTask, IqTask, Iq3dTask, EhentaiTask, BaiduTask = await gather(
                 *task,
                 return_exceptions=True)
-            
+
             try:
-                isGoogleExist = (True, choice(range(90, 100))) if GoogleTask is not None and (GoogleTask.raw[2].thumbnail != "" or not search("description", GoogleTask.raw[2].title.lower())) else (False, 0)
+                isGoogleExist = (True, choice(range(90, 100))) if GoogleTask is not None and (
+                    GoogleTask.raw[2].thumbnail != "" or not search(r"description", GoogleTask.raw[2].title, flags=IGNORECASE)) else (False, 0)
             except:
                 isGoogleExist = (False, 0)
 
             try:
-                isSNaoExist =  (True, sNaoTask.raw[0].similarity) if sNaoTask is not None and sNaoTask.raw[0].title != "" else (False, 0)
+                isSNaoExist = (
+                    True, sNaoTask.raw[0].similarity) if sNaoTask is not None and sNaoTask.raw[0].title != "" else (False, 0)
             except:
                 isSNaoExist = (False, 0)
 
             try:
-                isA2DExist = (True, None) if A2dTask is not None and A2dTask.raw[1].title != "" else (False, 0)
+                isA2DExist = (
+                    True, None) if A2dTask is not None and A2dTask.raw[1].title != "" else (False, 0)
             except:
                 isA2DExist = (False, 0)
 
             try:
-                isIqdbExist = (True, IqTask.raw[0].similarity) if IqTask is not None and IqTask.raw[0].title != "" else (False, 0)
+                isIqdbExist = (
+                    True, IqTask.raw[0].similarity) if IqTask is not None and IqTask.raw[0].title != "" else (False, 0)
             except:
                 isIqdbExist = (False, 0)
 
             try:
-                isIqdb3DExist = (True, Iq3dTask.raw[0].similarity) if Iq3dTask is not None and Iq3dTask.raw[0].title != "" else (False, 0)
+                isIqdb3DExist = (
+                    True, Iq3dTask.raw[0].similarity) if Iq3dTask is not None and Iq3dTask.raw[0].title != "" else (False, 0)
             except:
                 isIqdb3DExist = (False, 0)
 
             try:
-                isEhenExist = (True, None) if EhentaiTask is not None and EhentaiTask.raw[0].title != "" else (False, 0)
+                isEhenExist = (
+                    True, None) if EhentaiTask is not None and EhentaiTask.raw[0].title != "" else (False, 0)
             except:
                 isEhenExist = (False, 0)
 
             try:
-                isBaiduExist = (True, None) if BaiduTask is not None and BaiduTask.raw[0].title != "" else(False, 0)
+                isBaiduExist = (
+                    True, None) if BaiduTask is not None and BaiduTask.raw[0].title != "" else(False, 0)
             except:
                 isBaiduExist = (False, 0)
 
@@ -138,7 +145,7 @@ class Sauce:
                     except:
                         continue
                 return self._value_assigment(GoogleTask.raw[2].title, GoogleTask.raw[2].url, GoogleTask.raw[2].thumbnail, isGoogleExist[1], ["Google", self.SOURCE_DICT['Google']], another_titles, another_urls)
-                
+
             elif isBaiduExist[0] and isSNaoExist[1] <= 80 and isIqdbExist[1] <= 80 and isIqdb3DExist[1] <= 80:
                 another_titles = list()
                 another_urls = list()

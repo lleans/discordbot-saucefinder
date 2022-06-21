@@ -73,9 +73,9 @@ class MaidHayasaka(Client):
     @classmethod
     def _error(self, message, error):
         e = Embed(
-            title="404 not found..." if Exception(
+            title="404 not found..." if error is Exception(
                 "Source not found") else "Whoopsss...",
-            description="Looks like i couldn't find the sauce, maybe god doesn't like it\n\n**What should i do ?**\nYou can use these website to reverse image manually\n" if Exception(
+            description="Looks like i couldn't find the sauce, maybe god doesn't like it\n\n**What should i do ?**\nYou can use these website to reverse image manually\n" if error is Exception(
                 "Source not found") else "Looks like the source is down, maybe god doesn't like it\n\n**What should i do ?**\nYou can use these website to reverse image manually\n",
             color=int(self.HAYASAKA_COLOR['error'].lstrip('#'), 16)
         ).set_thumbnail(url=self.HAYASAKA_THUMBNAIL['error']
@@ -111,13 +111,14 @@ class MaidHayasaka(Client):
         anilist = False
         footer = f"© {maid.user.name} | {message.created_at.strftime('%x')}"
         desc = f"Likely **{sauce['similar']}%**\n\n"
-        e = Embed(title=sauce['title'], color=int(choice(self.HAYASAKA_COLOR['random']).lstrip('#'), 16))
+        e = Embed(title=sauce['title'], color=int(
+            choice(self.HAYASAKA_COLOR['random']).lstrip('#'), 16))
 
         try:
             media = await type(sauce['title'], popularity=True, allow_adult=True)
             if media.description is not None and not search(r"ascii2d|iqdb|baidu", sauce['source'][0], flags=IGNORECASE):
                 anilist = True
-                thumbnail_anilist = f"https://img.anili.st/media/{media.id}" 
+                thumbnail_anilist = f"https://img.anili.st/media/{media.id}"
                 anilist_desc = sub(r"<br>|</br>|<b>|</b>|<i>|</i>",
                                    "", media.description, flags=IGNORECASE)
                 desc += f"***{', '.join(media.genres)}***\n{anilist_desc[:256 - len(desc)]}... [(more)]({media.site_url})\n\n"
@@ -136,15 +137,19 @@ class MaidHayasaka(Client):
                     continue
 
         if anilist:
-            e.color = int(media.cover_color.lstrip('#'), 16)
+            try:
+                e.color = int(media.cover_color.lstrip('#'), 16)
+            except:
+                pass
             e.set_image(url=thumbnail_anilist)
         else:
             try:
                 req = Request(sauce['thumbnail'], headers={
-                            'User-Agent': 'Mozilla/5.0'})
+                    'User-Agent': 'Mozilla/5.0'})
                 f = BytesIO(urlopen(req).read())
                 e.set_image(url=sauce['thumbnail'])
-                e.color = int(('%02x%02x%02x' % ColorThief(f).get_color(quality=1)).lstrip('#'), 16)
+                e.color = int(('%02x%02x%02x' % ColorThief(
+                    f).get_color(quality=1)).lstrip('#'), 16)
             except:
                 if str(sauce['thumbnail']).startswith('http'):
                     desc += f"\nLooks like the image doesn't show up, [click here]({sauce['thumbnail']}) to open it"
@@ -154,7 +159,8 @@ class MaidHayasaka(Client):
                 footer += " | Image not found 404"
         e.description = desc
         e.url = sauce['url']
-        e.set_thumbnail(url="attachment://image.png") if isVideo else e.set_thumbnail(url=original)
+        e.set_thumbnail(
+            url="attachment://image.png") if isVideo else e.set_thumbnail(url=original)
         e.set_author(name=sauce['source'][0], icon_url=sauce['source'][1])
         e.set_footer(icon_url=message.author.avatar_url, text=footer)
         return e
@@ -169,7 +175,8 @@ class MaidHayasaka(Client):
                 async with message.channel.typing():
                     embed = await self.format_embed(sauce, type=self.kadal.search_anime, message=message, original=url, isVideo=isVideo)
                     if isVideo:
-                        image_file = File(BytesIO(sauce['thumbnail']), filename='image.png')
+                        image_file = File(
+                            BytesIO(sauce['thumbnail']), filename='image.png')
                         await wait([ensure_future(temp.delete()), ensure_future(message.channel.send(file=image_file, embed=embed))])
                     else:
                         await wait([ensure_future(temp.delete()), ensure_future(message.channel.send(embed=embed))])
