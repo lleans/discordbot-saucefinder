@@ -73,10 +73,9 @@ class MaidHayasaka(Client):
     @classmethod
     def _error(self, message, error):
         e = Embed(
-            title="404 not found..." if error is Exception(
-                "Source not found") else "Whoopsss...",
-            description="Looks like i couldn't find the sauce, maybe god doesn't like it\n\n**What should i do ?**\nYou can use these website to reverse image manually\n" if error is Exception(
-                "Source not found") else "Looks like the source is down, maybe god doesn't like it\n\n**What should i do ?**\nYou can use these website to reverse image manually\n",
+            title="404 not found..." if error.args[0] == "Source not found" else "Whoopsss...",
+            description="Looks like i couldn't find the sauce, maybe god doesn't like it\n\n**What should i do ?**\nYou can use these website to reverse image manually\n" if error.args[
+                0] == "Source not found" else "Looks like the source is down, maybe god doesn't like it\n\n**What should i do ?**\nYou can use these website to reverse image manually\n",
             color=int(self.HAYASAKA_COLOR['error'].lstrip('#'), 16)
         ).set_thumbnail(url=self.HAYASAKA_THUMBNAIL['error']
                         ).add_field(
