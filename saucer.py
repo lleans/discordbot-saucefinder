@@ -1,9 +1,12 @@
 import ffmpeg
 
+from io import BytesIO
 from re import IGNORECASE, search
 from random import choice
 from os import environ
 from asyncio import gather, Semaphore
+
+from PIL.Image import open as openImage
 from PicImageSearch import Ascii2D, BaiDu, EHentai, Google, Iqdb, SauceNAO, TraceMoe, Network
 
 
@@ -42,18 +45,33 @@ class Sauce:
             'another_urls': another_urls
         }
 
-    async def sauce_anime(self, url, isVideo):
-        async with Semaphore(4):
-            try:
-                if(isVideo):
-                    ffmpeg_proc = (
+    @staticmethod
+    async def extract_image(url):
+        ss = 0
+        isBlank = True
+
+        while isBlank:
+            ffmpeg_proc = (
                         ffmpeg
-                        .input(url, ss=0)
+                        .input(url, ss=ss)
+                        .filter("cropdetect")
                         .output('pipe: ', format='image2', vframes=1)
                         .overwrite_output()
                         .run_async(pipe_stdout=True, pipe_stderr=True)
                     )
-                    img = ffmpeg_proc.communicate()[0]
+            img = ffmpeg_proc.communicate()[0]
+            extrema = openImage(BytesIO(img)).convert("L").getextrema()
+            isBlank = extrema[0] == extrema[1]
+            ss += 1
+        else:
+            return img 
+
+
+    async def sauce_anime(self, url, isVideo):
+        async with Semaphore(4):
+            try:
+                if(isVideo):
+                    img = await self.extract_image(url=url)
                     tMoetask = await self.tracemoe.search(file=img)
                 else:
                     tMoetask = await self.tracemoe.search(url=url)
