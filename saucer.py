@@ -7,7 +7,7 @@ from os import environ
 from asyncio import gather, Semaphore
 
 from PIL.Image import open as openImage
-from PicImageSearch import Ascii2D, BaiDu, EHentai, Google, Iqdb, SauceNAO, TraceMoe, Network
+from PicImageSearch import Ascii2D, BaiDu, EHentai, Google, Iqdb, SauceNAO, TraceMoe
 
 
 class Sauce:
@@ -21,16 +21,15 @@ class Sauce:
         'E-Hentai': "https://i.imgur.com/IXSFiax.png"
     }
 
-    def __init__(self):
+    def __init__(self, client):
         super().__init__()
-        client = Network()
         self.ascii2d = Ascii2D(client=client)
         self.baidu = BaiDu(client=client)
         self.ehentai = EHentai(client=client)
         self.google = Google(client=client)
         self.iqdb = Iqdb(client=client)
         self.saucenao = SauceNAO(client=client, api_key=environ.get(
-            'SAUCENAO_TOKEN') or open("SAUCENAO_TOKEN").readline())
+            'SAUCENAO_TOKEN') or open("SAUCENAO_TOKEN").readline().strip())
         self.tracemoe = TraceMoe(client=client)
 
     @staticmethod
@@ -110,7 +109,7 @@ class Sauce:
             GoogleTask, sNaoTask, A2dTask, IqTask, Iq3dTask, EhentaiTask, BaiduTask = await gather(
                 *task,
                 return_exceptions=True)
-
+            
             try:
                 isGoogleExist = (True, choice(range(90, 100))) if GoogleTask is not None and (
                     GoogleTask.raw[2].thumbnail != "" or not search(r"description", GoogleTask.raw[2].title, flags=IGNORECASE)) else (False, 0)
@@ -131,13 +130,13 @@ class Sauce:
 
             try:
                 isIqdbExist = (
-                    True, IqTask.raw[0].similarity) if IqTask is not None and IqTask.raw[0].title != "" else (False, 0)
+                    True, IqTask.raw[0].similarity) if IqTask is not None and IqTask.raw[0].title != "" and IqTask.raw[0].title != 'No relevant matches' else (False, 0)
             except:
                 isIqdbExist = (False, 0)
 
             try:
                 isIqdb3DExist = (
-                    True, Iq3dTask.raw[0].similarity) if Iq3dTask is not None and Iq3dTask.raw[0].title != "" else (False, 0)
+                    True, Iq3dTask.raw[0].similarity) if Iq3dTask is not None and Iq3dTask.raw[0].title != "" and Iq3dTask.raw[0].title != 'No relevant matches' else (False, 0)
             except:
                 isIqdb3DExist = (False, 0)
 

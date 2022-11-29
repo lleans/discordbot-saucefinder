@@ -1,7 +1,7 @@
 # HayasakaMaid Bot 🩰
 For those of you who find screenshots of manga but you don't know the sauce ?, this bot will do a reverse image search, then compare it and send it back to you, this bot also index it to Anilist if the title exists.
 
-### Invite this bot to  your server [here 🌵](https://discord.com/api/oauth2/authorize?client_id=798894524428189697&permissions=523328&scope=bot)
+### Invite this bot to  your server [here 🌵](https://discord.com/api/oauth2/authorize?client_id=798894524428189697&permissions=277025519680&scope=bot%20applications.commands)
 
 ## Setup 🚀
 Make sure you make Environment Variable or File with name:
