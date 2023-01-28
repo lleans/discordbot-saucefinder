@@ -16,8 +16,8 @@ future==0.18.2
 idna==3.4
 Kadal==0.2.6
 lxml==4.9.1
-multidict==6.0.2
-picimagesearch==3.7.4
+multidict==6.0.4
+picimagesearch @ git+https://github.com/lleans/PicImageSearch.git@9f58bb97bd4b413978bed8c20178e8f50732173a
 Pillow==9.3.0
 pycares==4.2.2
 pycparser==2.21
