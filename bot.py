@@ -190,15 +190,15 @@ class HayasakaClient(Client, MaidHayasaka):
                         await wait([ensure_future(temp.delete()), ensure_future(message.channel.send(file=image_file, embed=embed))])
                     else:
                         await wait([ensure_future(temp.delete()), ensure_future(message.channel.send(embed=embed))])
-                    await message.channel.send(sauce['url'])
+                    return await message.channel.send(sauce['url'])
             elif isImage and not (videoMethod or isVideo):
                 sauce = await self.sauce.sauce_image(url=url)
                 async with message.channel.typing():
                     embed = await self.format_embed(sauce, type=self.kadal.search_manga, message=message, original=url, isVideo=isVideo)
-                    await wait([ensure_future(temp.delete()), ensure_future(message.channel.send(embed=embed))])
+                    return await wait([ensure_future(temp.delete()), ensure_future(message.channel.send(embed=embed))])
             else:
                 async with message.channel.typing():
-                    await wait([ensure_future(temp.delete()), ensure_future(message.channel.send(embed=self._error(message.created_at, Exception("Image or Video format not supported !"))))])
+                    return await wait([ensure_future(temp.delete()), ensure_future(message.channel.send(embed=self._error(message.created_at, Exception("Image or Video format not supported !"))))])
         except Exception as catch:
             await wait([ensure_future(temp.delete()), ensure_future(message.channel.send(embed=self._error(message.created_at, catch)))])
             traceback.print_exc()
@@ -215,17 +215,17 @@ class HayasakaClient(Client, MaidHayasaka):
                     if isVideo:
                         image_file = File(
                             BytesIO(sauce['thumbnail']), filename='image.png')
-                        await wait([ensure_future(interaction.edit_original_response(attachments=[image_file], embed=embed)), ensure_future(interaction.channel.send(sauce['url']))])
+                        return await wait([ensure_future(interaction.edit_original_response(attachments=[image_file], embed=embed)), ensure_future(interaction.channel.send(sauce['url']))])
                     else:
                         await wait([ensure_future(interaction.edit_original_response(embed=embed)), ensure_future(interaction.channel.send(sauce['url']))])
             elif isImage and not (videoMethod or isVideo):
                 sauce = await self.sauce.sauce_image(url=url)
                 async with interaction.channel.typing():
                     embed = await self.format_embed(sauce, type=self.kadal.search_manga, message=interaction, original=url, isVideo=isVideo)
-                    await wait([ensure_future(interaction.edit_original_response(embed=embed))])
+                    return await wait([ensure_future(interaction.edit_original_response(embed=embed))])
             else:
                 async with interaction.channel.typing():
-                    await wait([ensure_future(interaction.edit_original_response(embed=self._error(interaction.created_at, Exception("Image or Video format not supported !"))))])
+                    return await wait([ensure_future(interaction.edit_original_response(embed=self._error(interaction.created_at, Exception("Image or Video format not supported !"))))])
         except Exception as catch:
             await wait([ensure_future(interaction.edit_original_response(embed=self._error(interaction.created_at, catch)))])
             traceback.print_exc()
@@ -292,7 +292,7 @@ async def manga(interaction, url: str):
 
 @tree.command(name="help", description="Use this command to show command list")
 async def help(interaction):
-    await interaction.response.send_message(embed=maid._help(interaction.created_at))
+    await interaction.response.send_message(embed=maid._help(interaction.created_at), ephemeral=True)
 
 token = environ.get('BOT_TOKEN') or open("BOT_TOKEN").readline()
 maid.run(token.strip())
