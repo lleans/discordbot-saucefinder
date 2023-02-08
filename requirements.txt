@@ -15,13 +15,13 @@ frozenlist==1.3.3
 future==0.18.2
 idna==3.4
 Kadal==0.2.6
-lxml==4.9.1
+lxml==4.9.2
 multidict==6.0.4
-picimagesearch @ git+https://github.com/lleans/PicImageSearch.git@9f58bb97bd4b413978bed8c20178e8f50732173a
+picimagesearch @ git+https://github.com/lleans/PicImageSearch.git@4f5c9f96720ac9b87bbc44e78cdd2648a9406a38
 Pillow==9.3.0
 pycares==4.2.2
 pycparser==2.21
-pyquery==1.4.3
+pyquery==2.0.0
 wincertstore==0.2
 yarl==1.6.3
 zipp==3.10.0
