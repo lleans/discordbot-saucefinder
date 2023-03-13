@@ -112,7 +112,7 @@ class Sauce:
             
             try:
                 isGoogleExist = (True, choice(range(90, 100))) if GoogleTask is not None and (
-                    GoogleTask.raw[2].thumbnail != "" or not search(r"description", GoogleTask.raw[2].title, flags=IGNORECASE)) else (False, 0)
+                    GoogleTask.raw[2].url.startswith('https://') or not search(r"description|deskripsi", GoogleTask.raw[2].title, flags=IGNORECASE)) else (False, 0)
             except:
                 isGoogleExist = (False, 0)
 

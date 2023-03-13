@@ -200,7 +200,7 @@ class HayasakaClient(Client, MaidHayasaka):
                 sauce = await self.sauce.sauce_image(url=url)
                 async with message.channel.typing():
                     embed = await self.format_embed(sauce, type=self.kadal.search_manga, message=message, original=url, isVideo=isVideo)
-                    if sauce['thumbnail'].startswith("data:image"):
+                    if sauce['thumbnail'] is not None and sauce['thumbnail'].startswith("data:image"):
                         image_file = File(
                             BytesIO(b64decode(sub(r"(data:image\/(?:jpeg|jpg|png|gif);base64)", '', sauce['thumbnail']))), filename='thumbnail.png')
                         return await wait([ensure_future(temp.delete()), ensure_future(message.channel.send(file=image_file, embed=embed))])
@@ -231,7 +231,7 @@ class HayasakaClient(Client, MaidHayasaka):
                 sauce = await self.sauce.sauce_image(url=url)
                 async with interaction.channel.typing():
                     embed = await self.format_embed(sauce, type=self.kadal.search_manga, message=interaction, original=url, isVideo=isVideo)
-                    if sauce['thumbnail'].startswith("data:image"):
+                    if sauce['thumbnail'] is not None and sauce['thumbnail'].startswith("data:image"):
                         image_file = File(
                             BytesIO(b64decode(sub(r"(data:image\/(?:jpeg|jpg|png|gif);base64)", '', sauce['thumbnail']))), filename='thumbnail.png')
                         return await wait([ensure_future(interaction.edit_original_response(attachments=[image_file], embed=embed))])
